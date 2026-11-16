@@ -1,0 +1,13 @@
+{
+  "name": "uri-ban-chilpan",
+  "version": "1.0.0",
+  "private": true,
+  "description": "우리 반 칠판 — 교실 전자칠판 대시보드 + 컴시간·NEIS 중계 (Vercel)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "parse-comcigan": "^1.6.0"
+  }
+}

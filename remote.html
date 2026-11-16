@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e8e3f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>우리 반 리모컨</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap">
+<style>
+:root{
+  --ink:#3a3446; --muted:#6b6478; --muted2:#5f586c; --paper:#fffdf8; --page:#fbf8f1; --line:#e6dfd0; --dash:#e3dccb;
+  --desk:#e8e3f3; --lav:#e4d4f4; --lavL:#efe5f9; --lavD:#463a73; --lavM:#9b84d1; --ring:#b9b2c8;
+  --pink:#f7c6c7; --memo:#ffd6e3; --pinkD:#9a2659; --rose:#f3a9b8; --pick:#f3a9b8;
+  --mint:#c8e6d6; --mintL:#e1f2e8; --mintD:#24513d; --yel:#fde6a8; --yelL:#fff2cc; --yelD:#6a4b0c; --hl:#ffe08a; --blueL:#e4e9fa; --blueD:#33407a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--desk);font-family:'Gowun Dodum',sans-serif;color:var(--ink);word-break:keep-all}
+button{font-family:inherit;color:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit;color:var(--ink);font-size:16px}
+.pen{font-family:'Nanum Pen Script',cursive}
+.wrap{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;padding:20px 16px 110px;display:flex;flex-direction:column;gap:12px}
+.top{display:flex;align-items:center;gap:10px}
+.top h1{margin:0;font-family:'Nanum Pen Script',cursive;font-weight:400;font-size:40px;line-height:1}
+.conn{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;background:var(--paper);border:1.5px solid var(--mint);padding:4px 10px;border-radius:14px;color:var(--mintD);white-space:nowrap}
+.conn i{width:8px;height:8px;border-radius:50%;background:#3f9a6e}
+.conn.off{border-color:#e8a33c;color:#8a4b00}.conn.off i{background:#e8a33c}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.lbl{font-size:13px;color:var(--muted2)}
+.h2{font-size:15px;margin:0 0 8px;font-weight:400}
+.quick{display:flex;gap:8px}
+.quick button{flex:1;min-height:64px;border:none;border-radius:14px;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.badge{font-size:12px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipbtn{min-height:38px;padding:0 12px;border-radius:19px;border:1.5px solid var(--line);background:var(--page);font-size:15px}
+.chipbtn.on{border-color:var(--pick);background:var(--pick);color:#3d1328}
+.chipbtn.dash{border-style:dashed;border-color:#a49cb3;background:transparent}
+.btn{border:none;border-radius:14px;padding:12px 18px;font-size:16px;min-height:48px;background:var(--lav);color:var(--lavD)}
+.btn.main{background:var(--pinkD);color:#fff}
+.btn.lav{background:var(--lavM);color:#fff}
+.btn.ghost{background:transparent;border:1.5px dashed var(--ring);color:var(--lavD)}
+.btn.small{min-height:40px;padding:8px 14px;font-size:14px}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.45}
+.names{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.names button{height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--page);font-size:15px;display:flex;align-items:center;justify-content:center;gap:3px;padding:0;overflow:hidden;white-space:nowrap}
+.names button small{font-size:11px;opacity:.75}
+.names button.on{border-color:var(--pick);background:var(--pick);color:#3d1328}
+.names button.done{background:var(--lavL);border-color:var(--lav)}
+.seg{display:grid;grid-template-columns:repeat(3,auto);background:#f1eef7;border-radius:12px;padding:3px;gap:3px}
+.seg button{min-height:38px;padding:0 10px;border:none;border-radius:9px;background:transparent;font-size:13px;color:var(--muted2)}
+.seg button.on{background:var(--paper);box-shadow:0 2px 4px rgba(70,58,115,.12);color:var(--ink)}
+.memo{background:var(--memo);border-radius:2px 2px 16px 2px;padding:10px 16px;transform:rotate(-1deg)}
+.inp{width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea.inp{resize:vertical;line-height:1.5}
+.help{font-size:12px;color:var(--muted);line-height:1.5}
+.row{display:flex;align-items:center;gap:8px}
+.mini{height:140px;border-radius:8px;background:var(--page);border:1px solid var(--line);padding:8px;display:grid;grid-template-columns:1fr 1.7fr 1fr;grid-template-rows:12px 1fr 34px;gap:5px}
+.mini div{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;overflow:hidden}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1.5px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:68px}
+nav button{border:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muted2)}
+nav button.on{color:var(--lavD);font-weight:700}
+nav button.on svg{stroke:var(--lavD)}
+.sheetbg{position:fixed;inset:0;background:rgba(58,52,70,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:480px;background:var(--page);border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;max-height:88vh;overflow:auto;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.grab{align-self:center;width:44px;height:5px;border-radius:3px;background:#cfc8dc}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:15px;z-index:60;white-space:nowrap}
+.err{color:#9a2659;font-size:14px}
+details summary{cursor:pointer;font-size:14px;color:var(--lavD);padding:6px 0}
+.sec{display:flex;flex-direction:column;gap:6px}
+.sec label{font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main id="main"></main>
+</div>
+<nav id="nav" style="display:none"><div class="in" id="navIn"></div></nav>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<script type="module">
+import {
+  esc, $, $$, pad, tsMs, todayKey, hm, callText, randomId, loadLocal, saveLocal, connFromHash, decodeLink,
+  remoteUrl, boardUrl, callSummary, parseStudents, studentsToText, connectFirebase, demoStore, demoData, DEL, NOW, inc, DEFAULT_PLACES, DEFAULT_CLOSING, sharedDemo, ask
+} from './common.js';
+
+const R = {
+  conn: null, store: null, settings: null, live: {}, checks: [], tab: 'home', online: false,
+  sel: new Set(), place: null, msgMode: false, msg: '', sound: null, sheet: null, dirty: false
+};
+
+/* ---------- 연결 ---------- */
+(function boot() {
+  const h = connFromHash();
+  if (h?.cfg && h?.classId) { saveLocal(h); history.replaceState(null, '', location.pathname); }
+  if (location.search.includes('demo') || sharedDemo()) {
+    const { settings, live } = demoData();
+    R.conn = { demo: true };
+    window.__uribanDemoMode = true;
+    start(sharedDemo() || demoStore(settings, live));
+    return;
+  }
+  const c = loadLocal();
+  if (!c?.cfg || !c?.classId) { drawWelcome(); return; }
+  R.conn = c;
+  draw();
+  connectFirebase(c.cfg, c.classId).then(start).catch(() => { R.online = false; draw(); toast('연결하지 못했어요. 인터넷을 확인해 주세요.'); });
+})();
+
+function start(store) {
+  R.store = store;
+  // 글자를 입력하는 중에는 화면을 다시 그리지 않아요 (커서가 사라지지 않게)
+  const typing = () => ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+  store.onSettings((s) => { R.settings = s; R.online = true; if (!R.dirty && !typing()) draw(); }, () => { R.online = false; draw(); });
+  store.onLive((l) => { R.live = l || {}; R.online = true; if (!R.dirty && !typing()) draw(); else drawTopOnly(); }, () => { R.online = false; draw(); });
+  store.onChecks((list) => { R.checks = list; if (R.tab === 'check' && !R.dirty) draw(); });
+}
+
+function drawWelcome(err) {
+  $('#main').innerHTML = `<div class="top"><h1>우리 반 리모컨</h1></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="pen" style="font-size:30px;line-height:1.1">칠판의 QR을 찍어 주세요</div>
+      <div style="font-size:15px;line-height:1.6">전자칠판 왼쪽 아래 톱니 → <b>'선생님 폰 연결 (QR)'</b>을 누르고 폰 카메라로 찍으면 바로 연결돼요.</div>
+      <details><summary>QR 대신 주소 붙여 넣기</summary>
+        <textarea class="inp" id="linkIn" rows="3" placeholder="https://…remote.html#c=…"></textarea>
+        <button class="btn lav wide" id="linkOk" style="margin-top:8px">연결하기</button>
+        <div class="err">${esc(err || '')}</div></details>
+      <a class="help" href="?demo">연결 없이 리모컨 둘러보기 (체험)</a>
+    </div>`;
+  $('#linkOk').onclick = () => {
+    const m = /[#&]c=([^&\s]+)/.exec($('#linkIn').value);
+    const c = m ? decodeLink(m[1]) : null;
+    if (!c?.cfg || !c?.classId) return drawWelcome('주소를 읽을 수 없어요. 칠판에서 복사한 주소를 그대로 붙여 넣어 주세요.');
+    saveLocal(c); location.reload();
+  };
+}
+
+/* ---------- 공통 ---------- */
+const kids = () => R.settings?.students || [];
+const up = (patch) => R.store.update(patch).catch((e) => toast(`저장하지 못했어요 (${e.code || e.message})`));
+let toastT;
+function toast(m) {
+  $('#toast').innerHTML = `<div class="toast">${esc(m)}</div>`;
+  clearTimeout(toastT); toastT = setTimeout(() => { $('#toast').innerHTML = ''; }, 2600);
+}
+function activeCall() {
+  const c = R.live.call;
+  if (!c || !c.id) return null;
+  const at = tsMs(c.at);
+  if (at && Date.now() - at > 10 * 60 * 1000) return null;
+  return c;
+}
+const ICON = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  call: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  check: '<path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',
+  board: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+  set: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/>',
+  dice: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01"/>',
+  noise: '<rect x="8" y="2" width="8" height="20" rx="4"/><path d="M12 7h.01M12 12h.01M12 17h.01"/>',
+  send: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/>'
+};
+const ic = (n, c = 'currentColor', s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+
+function topBar(title) {
+  return `<div class="top"><h1>${esc(title)}</h1>
+    <span class="conn ${R.online ? '' : 'off'}" id="connChip"><i></i>${R.conn?.demo ? '체험 모드' : R.online ? '칠판 연결됨' : '연결 중…'}</span></div>`;
+}
+function drawTopOnly() { const c = $('#connChip'); if (c) c.outerHTML = topBar('').match(/<span class="conn[\s\S]*<\/span>/)[0]; }
+
+function draw() {
+  if (!R.conn) return;
+  $('#nav').style.display = '';
+  const tabs = [['home', '홈'], ['call', '호출'], ['check', '명단'], ['board', '알림판'], ['set', '설정']];
+  $('#navIn').innerHTML = tabs.map(([k, n]) => `<button class="${R.tab === k ? 'on' : ''}" data-tab="${k}">${ic(k === 'set' ? 'set' : k)}${n}</button>`).join('');
+  if (!R.settings) { $('#main').innerHTML = `${topBar('우리 반 리모컨')}<div class="card help">칠판 정보를 불러오는 중이에요…</div>`; return; }
+  ({ home: drawHome, call: drawCall, check: drawCheck, board: drawBoard, set: drawSet })[R.tab]();
+}
+$('#nav').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tab]');
+  if (!b) return;
+  if (R.dirty && !ask('저장하지 않은 내용이 있어요. 그래도 넘어갈까요?')) return;
+  R.dirty = false; R.tab = b.dataset.tab; draw(); scrollTo(0, 0);
+});
+
+/* ---------- 홈 ---------- */
+function boardState() {
+  const c = activeCall();
+  const o = R.live.overlay;
+  const chk = R.live.check;
+  let mid = '알림판', midBg = 'var(--lavL)';
+  if (c && !(c.ack && tsMs(c.ackAt) && Date.now() - tsMs(c.ackAt) > 4000)) { mid = c.ack ? '호출 (확인됨)' : '호출'; midBg = 'var(--memo)'; }
+  else if (o?.type === 'timer') { mid = '타이머'; midBg = 'var(--lavL)'; }
+  else if (o?.type === 'pick') { mid = `뽑기 · ${o.name}`; midBg = 'var(--yelL)'; }
+  else if (o?.type === 'noise') { mid = '소음 신호등'; midBg = 'var(--paper)'; }
+  const bottom = chk ? `체크 · ${chk.title}` : '이번 주 일정';
+  return { mid, midBg, bottom, bottomBg: chk ? 'var(--memo)' : 'var(--yelL)' };
+}
+function drawHome() {
+  const b = boardState();
+  const chk = R.live.check;
+  const c = activeCall();
+  const o = R.live.overlay;
+  const s = R.live.stars || { count: 0, goal: 50 };
+  const done = chk?.done || {};
+  const pending = chk ? kids().filter((k) => !done[k.no]) : [];
+  $('#main').innerHTML = `${topBar('우리 반 리모컨')}
+    <div class="card" style="padding:10px">
+      <div class="row" style="margin:0 4px 8px"><span class="lbl">지금 칠판 화면</span><span class="lbl" style="margin-left:auto">${hm()}</span></div>
+      <div class="mini">
+        <div style="grid-column:1/-1;justify-content:space-between;background:transparent;gap:4px"><span style="width:60px;height:100%;background:var(--pink);border-radius:3px"></span><span style="width:50px;height:100%;background:var(--lav);border-radius:3px"></span></div>
+        <div style="background:var(--paper);border:1px solid var(--line)">시간표</div>
+        <div style="background:${b.midBg};border:1px solid var(--line)">${esc(b.mid)}</div>
+        <div style="background:var(--paper);border:1px solid var(--line)">급식</div>
+        <div style="grid-column:1/-1;background:${b.bottomBg}">${esc(b.bottom)}</div>
+      </div>
+    </div>
+    <div class="quick">
+      <button style="background:var(--memo)" data-act="goCall">${ic('call', '#8a2050')}호출</button>
+      <button style="background:var(--lavL)" data-act="timer">${ic('timer', '#463a73')}타이머</button>
+      <button style="background:var(--mintL)" data-act="pick">${ic('dice', '#24513d')}뽑기</button>
+      <button style="background:var(--blueL)" data-act="noise">${ic('noise', '#33407a')}소음</button>
+      <button style="background:var(--yelL)" data-act="star"><span class="pen" style="font-size:24px;line-height:1;color:var(--yelD)">+1</span>칭찬 ${esc(s.count || 0)}</button>
+    </div>
+    ${o ? `<div class="card row"><span class="badge" style="background:var(--lav);color:var(--lavD)">칠판에 표시 중</span><span style="font-size:15px">${esc({ timer: '타이머', pick: '랜덤 뽑기', noise: '소음 신호등' }[o.type] || '')}${o.label ? ` · ${esc(o.label)}` : ''}</span>
+      <button class="btn small" style="margin-left:auto" data-act="${o.type}">조절</button><button class="btn small ghost" data-act="ovClose">닫기</button></div>` : ''}
+    ${chk ? `<div class="card" style="border:2px solid var(--rose)">
+      <div class="row"><span class="badge" style="background:var(--pinkD);color:#fff">체크 중</span><span style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(chk.title)}</span>
+        <span class="pen" style="margin-left:auto;font-size:26px;line-height:1">${kids().length - pending.length} / ${kids().length}</span></div>
+      <div class="help" style="margin:8px 0 6px">${pending.length ? '아직 안 한 친구 · 누르면 대신 체크돼요' : '모두 완료!'}</div>
+      <div class="chips">${pending.map((k) => `<button class="chipbtn dash" style="min-height:32px;font-size:13px" data-mark="${k.no}">${k.no} ${esc(k.name)}</button>`).join('')}</div>
+      <button class="btn wide" style="margin-top:10px;background:var(--pink);color:#5a1f28" data-act="closeCheck">마감하고 ${pending.length ? '미제출 명단' : '기록'} 저장</button></div>` : ''}
+    ${c ? `<div class="card"><div class="lbl" style="margin-bottom:4px">최근 호출</div>
+      <div class="row" style="font-size:15px"><span>${esc(callSummary(c))}</span><span class="lbl">${tsMs(c.at) ? hm(new Date(tsMs(c.at))) : ''}</span>
+        <span class="badge" style="margin-left:auto;background:${c.ack ? 'var(--mint)' : 'var(--yelL)'};color:${c.ack ? 'var(--mintD)' : 'var(--yelD)'}">${c.ack ? '지금 갈게요 ✓' : '확인 대기'}</span></div>
+      ${c.ack ? '' : '<button class="btn small ghost" style="margin-top:8px" data-act="cancelCall">호출 내리기</button>'}</div>` : ''}
+    ${!chk ? '<button class="btn ghost wide" data-act="goCheck">체크 명단 시작하기 (등교·통신문·제출물…)</button>' : ''}`;
+}
+$('#main').addEventListener('click', async (e) => {
+  const a = e.target.closest('[data-act]');
+  const mk = e.target.closest('[data-mark]');
+  if (mk && R.live.check) { up({ [`check.done.${mk.dataset.mark}`]: true }); return; }
+  if (!a) return;
+  const act = a.dataset.act;
+  if (act === 'goCall') { R.tab = 'call'; draw(); }
+  if (act === 'goCheck') { R.tab = 'check'; draw(); }
+  if (act === 'star') { up({ 'stars.count': inc(1) }); toast('칭찬 별 +1'); }
+  if (act === 'timer' || act === 'pick' || act === 'noise') openSheet(act);
+  if (act === 'ovClose') up({ overlay: null });
+  if (act === 'cancelCall') up({ call: null });
+  if (act === 'closeCheck') closeCheck();
+});
+
+/* ---------- 호출 ---------- */
+function drawCall() {
+  const places = R.settings.places?.length ? R.settings.places : DEFAULT_PLACES;
+  if (!R.place) R.place = places[0];
+  if (!R.sound) R.sound = R.settings.sound || 'voice';
+  const names = kids().filter((k) => R.sel.has(k.no)).map((k) => k.name);
+  const recent = (R.settings.messages || []).slice(0, 5);
+  const c = activeCall();
+  $('#main').innerHTML = `${topBar('호출하기')}
+    ${c && !c.ack ? `<div class="card row" style="border:2px solid var(--rose)"><span style="font-size:14px">칠판에 떠 있어요 · ${esc(callSummary(c))}</span><button class="btn small ghost" style="margin-left:auto" data-c="cancel">내리기</button></div>` : ''}
+    ${c && c.ack ? `<div class="card row" style="border:2px solid var(--mint)"><span style="font-size:14px">${esc((c.names || []).join(' · ') || '반 전체')}에서 '지금 갈게요'를 눌렀어요 ✓</span></div>` : ''}
+    <div class="card" style="padding:12px">
+      <div class="row" style="margin:0 2px 8px"><span style="font-size:15px">① 누구를?</span><span class="help">${R.msgMode ? '안 고르면 반 전체에게 보내요' : '여러 명 선택 가능'}</span>
+        ${R.sel.size ? '<button class="btn small ghost" style="margin-left:auto;min-height:32px;padding:4px 10px" data-c="clear">선택 지우기</button>' : ''}</div>
+      ${kids().length ? `<div class="names">${kids().map((k) => `<button class="${R.sel.has(k.no) ? 'on' : ''}" data-k="${k.no}"><small>${k.no}</small>${esc(k.name)}</button>`).join('')}</div>`
+        : '<div class="help">학생 명단이 없어요. \'설정\' 탭에서 명단을 넣어 주세요.</div>'}
+    </div>
+    <div class="card">
+      <div style="font-size:15px;margin-bottom:8px">② 무엇을?</div>
+      <div class="chips">${places.map((p) => `<button class="chipbtn ${!R.msgMode && R.place === p ? 'on' : ''}" data-p="${esc(p)}">${esc(p)}</button>`).join('')}
+        <button class="chipbtn dash ${R.msgMode ? 'on' : ''}" data-c="msg">✎ 직접 쓰기</button></div>
+      ${R.msgMode ? `<textarea class="inp" id="msgIn" rows="2" maxlength="60" style="margin-top:8px" placeholder="예: 점심시간에 교무실 들러 주세요">${esc(R.msg)}</textarea>
+        ${recent.length ? `<div class="help" style="margin:6px 0 4px">최근에 쓴 문장</div><div class="chips">${recent.map((m, i) => `<button class="chipbtn" style="min-height:34px;font-size:13px" data-rm="${i}">${esc(m)}</button>`).join('')}</div>` : ''}` : ''}
+    </div>
+    <div class="card row" style="padding:6px 8px 6px 14px"><span style="font-size:15px">③ 소리</span>
+      <div class="seg" style="margin-left:auto">${[['mute', '무음'], ['chime', '딩동'], ['voice', '딩동 + 음성']].map(([k, n]) => `<button class="${R.sound === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div></div>
+    <div class="memo"><div style="font-size:12px;color:#8a2050">칠판에 이렇게 떠요</div>
+      <div class="pen" style="font-size:30px;line-height:1.05" id="preview"></div></div>
+    <button class="btn main wide" style="min-height:56px;font-size:18px;display:flex;align-items:center;justify-content:center;gap:8px" data-c="send" id="sendBtn">${ic('send', '#fff')}칠판에 띄우기</button>`;
+  updatePreview();
+  $('#msgIn')?.addEventListener('input', (e) => { R.msg = e.target.value; updatePreview(); });
+}
+function callReady() {
+  const n = R.sel.size;
+  return R.msgMode ? R.msg.trim().length > 0 : n > 0 && !!R.place;
+}
+function updatePreview() {
+  const names = kids().filter((k) => R.sel.has(k.no)).map((k) => k.name);
+  const t = callText(names, R.place || '…', R.msgMode ? R.msg : '');
+  $('#preview').textContent = callReady() ? `${t.who} ${t.where}` : R.msgMode ? '보낼 문장을 적어 주세요' : '학생을 골라 주세요';
+  $('#sendBtn').disabled = !callReady();
+}
+$('#main').addEventListener('click', (e) => {
+  if (R.tab !== 'call') return;
+  const k = e.target.closest('[data-k]');
+  const p = e.target.closest('[data-p]');
+  const s = e.target.closest('[data-s]');
+  const rm = e.target.closest('[data-rm]');
+  const c = e.target.closest('[data-c]');
+  if (k) { const no = Number(k.dataset.k); R.sel.has(no) ? R.sel.delete(no) : R.sel.add(no); drawCall(); }
+  if (p) { R.place = p.dataset.p; R.msgMode = false; drawCall(); }
+  if (s) { R.sound = s.dataset.s; drawCall(); }
+  if (rm) { R.msg = (R.settings.messages || [])[Number(rm.dataset.rm)] || ''; drawCall(); }
+  if (!c) return;
+  const act = c.dataset.c;
+  if (act === 'clear') { R.sel.clear(); drawCall(); }
+  if (act === 'msg') { R.msgMode = true; drawCall(); $('#msgIn')?.focus(); }
+  if (act === 'cancel') up({ call: null });
+  if (act === 'send') {
+    if (!callReady()) return;
+    const chosen = kids().filter((x) => R.sel.has(x.no));
+    const message = R.msgMode ? R.msg.trim() : '';
+    up({ call: { id: randomId(8), names: chosen.map((x) => x.name), nos: chosen.map((x) => x.no), place: message ? null : R.place, message: message || null, sound: R.sound, from: R.settings.teacher || '', at: NOW, ack: false } });
+    if (message) R.store.saveSettings({ messages: [message, ...(R.settings.messages || []).filter((m) => m !== message)].slice(0, 5) });
+    R.sel.clear(); R.msg = ''; R.msgMode = false;
+    toast('칠판에 띄웠어요');
+  }
+});
+
+/* ---------- 체크 명단 ---------- */
+const PRESETS = [['등교 체크', '등교했으면 내 이름 꾹!', '등교'], ['가정통신문', '가정통신문 냈으면 내 이름 꾹!', '완료'], ['수행평가 제출', '수행평가 냈으면 내 이름 꾹!', '제출'], ['우유 신청', '우유 신청했으면 내 이름 꾹!', '신청']];
+function drawCheck() {
+  const chk = R.live.check;
+  const list = kids();
+  let body = '';
+  if (chk) {
+    const done = chk.done || {};
+    const n = list.filter((k) => done[k.no]).length;
+    body = `<div class="card" style="border:2px solid var(--rose)">
+      <div class="row"><span class="badge" style="background:var(--pinkD);color:#fff">체크 중</span><span style="font-size:16px">${esc(chk.title)}</span><span class="pen" style="margin-left:auto;font-size:26px;line-height:1">${n} / ${list.length}</span></div>
+      <div class="help" style="margin:8px 0">눌러서 대신 체크하거나 취소할 수 있어요.</div>
+      <div class="names">${list.map((k) => `<button class="${done[k.no] ? 'done' : ''}" data-t="${k.no}"><small>${k.no}</small>${esc(k.name)}${done[k.no] ? ' ✓' : ''}</button>`).join('')}</div>
+      <div class="row" style="margin-top:10px"><button class="btn" style="flex:1;background:var(--pink);color:#5a1f28" data-h="close">마감하고 기록 저장</button><button class="btn ghost" data-h="drop">기록 없이 닫기</button></div></div>`;
+  } else {
+    body = `<div class="card sec">
+      <div style="font-size:15px">새 체크 명단 켜기</div>
+      <div class="chips">${PRESETS.map((p, i) => `<button class="chipbtn" data-pre="${i}">${p[0]}</button>`).join('')}</div>
+      <label for="ckTitle" class="lbl">칠판에 뜰 제목</label>
+      <input class="inp" id="ckTitle" placeholder="예: 체험학습 동의서 냈으면 내 이름 꾹!">
+      <label for="ckStamp" class="lbl">도장 글자 (2글자)</label>
+      <input class="inp" id="ckStamp" maxlength="2" value="완료">
+      <button class="btn lav wide" data-h="start" ${list.length ? '' : 'disabled'}>칠판에 명단 띄우기</button>
+      ${list.length ? '' : '<div class="help">학생 명단이 없어요. \'설정\' 탭에서 먼저 넣어 주세요.</div>'}</div>`;
+  }
+  const recs = R.checks.slice(0, 10);
+  $('#main').innerHTML = `${topBar('체크 명단')}${body}
+    <div class="card"><div class="h2">지난 기록</div>
+      ${recs.length ? recs.map((r) => `<details style="border-top:1.5px dashed var(--dash);padding:4px 0"><summary style="color:var(--ink)">${esc(r.date || '')} · ${esc(r.title)} <span class="lbl">(${(r.done || []).length}/${(r.done || []).length + (r.missing || []).length})</span></summary>
+        <div class="help" style="margin:4px 0">안 한 친구: ${(r.missing || []).length ? esc(r.missing.join(', ')) : '없음'}</div>
+        ${(r.missing || []).length ? `<button class="btn small ghost" data-copy="${esc(r.missing.join(', '))}">안 한 친구 복사</button>` : ''}</details>`).join('') : '<div class="help">마감한 체크 명단이 여기에 쌓여요.</div>'}</div>`;
+}
+$('#main').addEventListener('click', (e) => {
+  if (R.tab !== 'check') return;
+  const t = e.target.closest('[data-t]');
+  const pre = e.target.closest('[data-pre]');
+  const h = e.target.closest('[data-h]');
+  const cp = e.target.closest('[data-copy]');
+  if (t && R.live.check) { const no = t.dataset.t; const on = !(R.live.check.done || {})[no]; up({ [`check.done.${no}`]: on ? true : DEL }); }
+  if (pre) { const p = PRESETS[Number(pre.dataset.pre)]; $('#ckTitle').value = p[1]; $('#ckStamp').value = p[2]; }
+  if (cp) { navigator.clipboard?.writeText(cp.dataset.copy); toast('복사했어요'); }
+  if (!h) return;
+  if (h.dataset.h === 'start') {
+    const title = $('#ckTitle').value.trim() || '내 이름 꾹!';
+    up({ check: { id: randomId(8), title, stamp: ($('#ckStamp').value.trim() || '완료').slice(0, 2), kind: /등교/.test(title) ? 'attendance' : 'custom', date: todayKey(), done: {}, startedAt: NOW } });
+    toast('칠판 아래에 명단이 떴어요');
+  }
+  if (h.dataset.h === 'close') closeCheck();
+  if (h.dataset.h === 'drop' && ask('기록을 남기지 않고 닫을까요?')) up({ check: null });
+});
+async function closeCheck() {
+  const chk = R.live.check;
+  if (!chk) return;
+  const done = chk.done || {};
+  await R.store.archiveCheck({
+    title: chk.title || '', stamp: chk.stamp || '', date: chk.date || todayKey(),
+    done: kids().filter((k) => done[k.no]).map((k) => `${k.no} ${k.name}`),
+    missing: kids().filter((k) => !done[k.no]).map((k) => `${k.no} ${k.name}`)
+  });
+  await up({ check: null });
+  toast('기록을 저장했어요');
+}
+
+/* ---------- 알림판 쓰기 ---------- */
+const lines = (t) => String(t || '').split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+function pairs(t) {
+  return lines(t).map((l) => { const i = l.search(/[:：]/); return i < 0 ? [l, ''] : [l.slice(0, i).trim(), l.slice(i + 1).trim()]; });
+}
+function parseDate(s) {
+  const now = new Date();
+  let m = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/.exec(s);
+  if (m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  m = /^(\d{1,2})[-./월]\s*(\d{1,2})일?$/.exec(s);
+  if (!m) return null;
+  let y = now.getFullYear();
+  if (new Date(y, Number(m[1]) - 1, Number(m[2])) < new Date(now.getFullYear(), now.getMonth() - 2, 1)) y += 1;
+  return `${y}-${pad(m[1])}-${pad(m[2])}`;
+}
+function parseTasks(t) {
+  return lines(t).map((l) => {
+    const parts = l.split(/\s+/);
+    const date = parseDate(parts[0]);
+    if (!date) return null;
+    let type = '수행';
+    let rest = parts.slice(1);
+    if (['수행', '준비물', '학사', '마감'].includes(rest[0])) { type = rest[0] === '마감' ? '수행' : rest[0]; rest = rest.slice(1); }
+    return rest.length ? { date, type, text: rest.join(' ') } : null;
+  }).filter(Boolean);
+}
+function parseDdays(t) {
+  return lines(t).map((l) => {
+    const parts = l.split(/\s+/);
+    let date = parseDate(parts[parts.length - 1]);
+    let label = parts.slice(0, -1).join(' ');
+    if (!date) { date = parseDate(parts[0]); label = parts.slice(1).join(' '); }
+    return date && label ? { label, date } : null;
+  }).filter(Boolean);
+}
+const md = (d) => { const [, m, dd] = d.split('-'); return `${Number(m)}/${Number(dd)}`; };
+function drawBoard() {
+  const b = R.live.board || {};
+  $('#main').innerHTML = `${topBar('알림판 쓰기')}
+    <div class="card sec">
+      <label for="bDuty">오늘의 주번 <span class="help">(쉼표로 구분)</span></label>
+      <div class="row"><input class="inp" id="bDuty" value="${esc((b.duty || []).join(', '))}"><button class="btn small" data-b="nextDuty" style="white-space:nowrap">다음 차례</button></div>
+      <label for="bNotice">알림 · 준비물 <span class="help">(한 줄에 하나)</span></label>
+      <textarea class="inp" id="bNotice" rows="3" placeholder="내일 체육복 챙기기">${esc((b.notices || []).join('\n'))}</textarea>
+      <label for="bQ">오늘의 질문 <span class="help">(비워 두면 질문을 자동으로 골라 줘요)</span></label>
+      <input class="inp" id="bQ" value="${esc(b.question || '')}" placeholder="아침 화면에 크게 떠요">
+    </div>
+    <div class="card sec">
+      <label for="bClean">청소 구역 <span class="help">(구역: 이름, 이름)</span></label>
+      <textarea class="inp" id="bClean" rows="4" placeholder="교실 바닥: 김하늘, 이바다&#10;복도: 박구름">${esc((b.cleaning || []).map((c) => `${c.zone}: ${c.names}`).join('\n'))}</textarea>
+      <label for="bRoles">1인1역 <span class="help">(역할: 이름)</span></label>
+      <textarea class="inp" id="bRoles" rows="5" placeholder="칠판 지우기: 최별&#10;불 끄기: 정솔">${esc((b.roles || []).map((r) => `${r.role}: ${r.name}`).join('\n'))}</textarea>
+      <label for="bClose">하교 전 체크리스트 <span class="help">(청소 구역은 자동으로 들어가요)</span></label>
+      <textarea class="inp" id="bClose" rows="3">${esc((b.closingItems || DEFAULT_CLOSING).join('\n'))}</textarea>
+    </div>
+    <div class="card sec">
+      <label for="bTasks">이번 주 일정 · 마감 <span class="help">(날짜 종류 내용 — 종류: 수행 · 준비물 · 학사)</span></label>
+      <textarea class="inp" id="bTasks" rows="4" placeholder="11/17 수행 국어 수행평가 마감&#10;11/18 준비물 체육복">${esc((b.tasks || []).map((t) => `${md(t.date)} ${t.type} ${t.text}`).join('\n'))}</textarea>
+      <label for="bDday">D-day <span class="help">(이름 날짜)</span></label>
+      <textarea class="inp" id="bDday" rows="2" placeholder="기말고사 12/3">${esc((b.ddays || []).map((d) => `${d.label} ${md(d.date)}`).join('\n'))}</textarea>
+      <div class="help">학사일정(NEIS)은 자동으로 들어가요. 지난 일정은 저장할 때 정리돼요.</div>
+    </div>
+    <button class="btn lav wide" style="position:sticky;bottom:80px;min-height:54px;font-size:17px;box-shadow:0 8px 20px rgba(70,58,115,.25)" data-b="save">칠판에 반영하기</button>`;
+  $$('#main .inp').forEach((el) => el.addEventListener('input', () => { R.dirty = true; }));
+}
+$('#main').addEventListener('click', (e) => {
+  if (R.tab !== 'board') return;
+  const b = e.target.closest('[data-b]');
+  if (!b) return;
+  if (b.dataset.b === 'nextDuty') {
+    const list = kids();
+    if (!list.length) { toast('학생 명단이 없어요'); return; }
+    const i = (Number(R.live.board?.dutyNext) || 0) % list.length;
+    const two = [list[i], list[(i + 1) % list.length]].map((k) => k.name);
+    $('#bDuty').value = two.join(', ');
+    R.dirty = true;
+    R.nextDuty = (i + 2) % list.length;
+    return;
+  }
+  if (b.dataset.b === 'save') {
+    const cutoff = todayKey(new Date(Date.now() - 7 * 86400000));
+    const patch = {
+      'board.duty': $('#bDuty').value.split(/[,，·]/).map((x) => x.trim()).filter(Boolean),
+      'board.notices': lines($('#bNotice').value),
+      'board.question': $('#bQ').value.trim(),
+      'board.cleaning': pairs($('#bClean').value).map(([zone, names]) => ({ zone, names: names.split(/[,，]/).map((x) => x.trim()).filter(Boolean).join(' · ') })),
+      'board.roles': pairs($('#bRoles').value).map(([role, name]) => ({ role, name })),
+      'board.closingItems': lines($('#bClose').value),
+      'board.tasks': parseTasks($('#bTasks').value).filter((t) => t.date >= cutoff),
+      'board.ddays': parseDdays($('#bDday').value).filter((d) => d.date >= todayKey())
+    };
+    if (R.nextDuty !== undefined) { patch['board.dutyNext'] = R.nextDuty; R.nextDuty = undefined; }
+    R.dirty = false;
+    up(patch).then(() => { toast('칠판에 반영했어요'); draw(); });
+  }
+});
+
+/* ---------- 설정 ---------- */
+function drawSet() {
+  const s = R.settings;
+  const a = s.auto || {};
+  const st = R.live.stars || {};
+  $('#main').innerHTML = `${topBar('설정')}
+    <div class="card sec">
+      <label for="sStu">학생 명단 <span class="help">(번호 이름 생일 — 엑셀·나이스에서 복사해 붙여 넣기)</span></label>
+      <textarea class="inp" id="sStu" rows="8" placeholder="1&#9;김하늘&#9;3/14">${esc(studentsToText(s.students))}</textarea>
+      <div class="help" id="sStuN">${(s.students || []).length}명</div>
+    </div>
+    <div class="card sec">
+      <label for="sTeacher">호출할 때 보이는 내 이름</label><input class="inp" id="sTeacher" value="${esc(s.teacher || '')}" placeholder="예: 채쌤">
+      <label for="sTitle">칠판 제목</label><input class="inp" id="sTitle" value="${esc(s.title || '우리 반 칠판')}">
+      <label for="sPlaces">호출 장소 목록 <span class="help">(한 줄에 하나)</span></label>
+      <textarea class="inp" id="sPlaces" rows="4">${esc((s.places || DEFAULT_PLACES).join('\n'))}</textarea>
+      <label for="sSound">호출 기본 소리</label>
+      <select class="inp" id="sSound">${[['voice', '딩동 + 이름 읽기'], ['chime', '딩동'], ['mute', '무음']].map(([k, n]) => `<option value="${k}" ${s.sound === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
+    </div>
+    <div class="card sec">
+      <div style="font-size:15px">자동 화면</div>
+      <label for="sMorning">아침 화면 시작 <span class="help">(이때부터 1교시 전까지 '오늘의 질문'과 등교 체크)</span></label>
+      <input class="inp" id="sMorning" type="time" value="${esc(a.morningStart || '08:00')}">
+      <label class="row" style="font-size:14px"><input type="checkbox" id="sAttend" ${a.attendance !== false ? 'checked' : ''} style="width:22px;height:22px"> 아침마다 등교 체크 자동으로 켜기</label>
+      <div class="row">
+        <div class="sec" style="flex:1"><label for="sClass">수업 시간(분)</label><input class="inp" id="sClass" type="number" min="30" max="60" value="${esc(a.classMins || 45)}"></div>
+        <div class="sec" style="flex:1"><label for="sClosing">종례 화면(분)</label><input class="inp" id="sClosing" type="number" min="5" max="90" value="${esc(a.closingMins || 30)}"></div>
+      </div>
+      <label for="sFirst">1교시 시작 <span class="help">(컴시간에 시각이 없을 때만 써요)</span></label>
+      <input class="inp" id="sFirst" type="time" value="${esc(a.firstStart || '08:50')}">
+    </div>
+    <div class="card sec">
+      <div style="font-size:15px">칭찬 별</div>
+      <div class="row">
+        <div class="sec" style="flex:1"><label for="sStar">지금 개수</label><input class="inp" id="sStar" type="number" min="0" value="${esc(st.count || 0)}"></div>
+        <div class="sec" style="flex:1"><label for="sGoal">목표</label><input class="inp" id="sGoal" type="number" min="1" value="${esc(st.goal || 50)}"></div>
+      </div>
+      <label for="sReward">다 모으면</label><input class="inp" id="sReward" value="${esc(st.reward || '')}" placeholder="예: 피자 파티">
+    </div>
+    <button class="btn lav wide" style="min-height:54px;font-size:17px" data-set="save">설정 저장</button>
+    <div class="card sec">
+      <div style="font-size:15px">연결</div>
+      <div class="help">학교·학년·반을 바꾸려면 칠판 왼쪽 아래 톱니 → '처음 설정 다시 하기'를 눌러 주세요.</div>
+      ${R.conn.demo ? '<div class="help">체험 모드에서는 연결 주소가 없어요.</div>' : `
+      <button class="btn" data-set="boardLink">칠판 연결 주소 복사 <span class="help">(칠판 다시 설치할 때)</span></button>
+      <button class="btn" data-set="remoteLink">다른 선생님 폰 연결 주소 복사</button>
+      <button class="btn ghost" data-set="logout">이 폰에서 연결 끊기</button>`}
+      <div class="help">연결 주소에는 우리 반 칠판에 들어가는 열쇠가 담겨 있어요. 믿을 수 있는 분에게만 보내 주세요.</div>
+    </div>`;
+  $$('#main .inp').forEach((el) => el.addEventListener('input', () => { R.dirty = true; }));
+  $('#sStu').addEventListener('input', () => { $('#sStuN').textContent = `${parseStudents($('#sStu').value).length}명`; });
+}
+$('#main').addEventListener('click', async (e) => {
+  if (R.tab !== 'set') return;
+  const b = e.target.closest('[data-set]');
+  if (!b) return;
+  const k = b.dataset.set;
+  if (k === 'save') {
+    const students = parseStudents($('#sStu').value);
+    if ((R.settings.students || []).length && !students.length && !ask('학생 명단이 비어 있어요. 이대로 저장할까요?')) return;
+    await R.store.saveSettings({
+      students,
+      teacher: $('#sTeacher').value.trim(),
+      title: $('#sTitle').value.trim() || '우리 반 칠판',
+      places: lines($('#sPlaces').value).slice(0, 12),
+      sound: $('#sSound').value,
+      'auto.morningStart': $('#sMorning').value || '08:00',
+      'auto.attendance': $('#sAttend').checked,
+      'auto.classMins': Math.min(60, Math.max(30, Number($('#sClass').value) || 45)),
+      'auto.closingMins': Math.min(90, Math.max(5, Number($('#sClosing').value) || 30)),
+      'auto.firstStart': $('#sFirst').value || '08:50'
+    }).catch((err) => toast(`저장하지 못했어요 (${err.code || err.message})`));
+    await up({ stars: { count: Math.max(0, Number($('#sStar').value) || 0), goal: Math.max(1, Number($('#sGoal').value) || 50), reward: $('#sReward').value.trim() } });
+    R.dirty = false;
+    toast('저장했어요');
+    draw();
+  }
+  if (k === 'boardLink') { navigator.clipboard?.writeText(boardUrl(R.conn)); toast('칠판 연결 주소를 복사했어요'); }
+  if (k === 'remoteLink') { navigator.clipboard?.writeText(remoteUrl(R.conn)); toast('리모컨 연결 주소를 복사했어요'); }
+  if (k === 'logout' && ask('이 폰에서 연결을 끊을까요? 다시 쓰려면 칠판 QR을 찍어야 해요.')) { saveLocal(null); location.reload(); }
+});
+
+/* ---------- 아래에서 올라오는 창(타이머·뽑기·소음) ---------- */
+function openSheet(kind) { R.sheet = kind; drawSheet(); }
+function closeSheet() { R.sheet = null; $('#sheet').innerHTML = ''; }
+function drawSheet() {
+  const o = R.live.overlay;
+  const k = R.sheet;
+  let h = '';
+  if (k === 'timer') {
+    const running = o?.type === 'timer';
+    h = `<div class="row"><span class="pen" style="font-size:34px;line-height:1">타이머</span></div>
+      ${running ? `<div class="card" style="text-align:center"><div class="lbl">${esc(o.label || '타이머')}</div><div class="pen" style="font-size:64px;line-height:1" id="shLeft">--:--</div></div>
+        <div class="row"><button class="btn" style="flex:1" data-sh="plus">+1분</button><button class="btn main" style="flex:1" data-sh="stop">끝내기</button></div>`
+      : `<label class="lbl" for="tLabel">무엇을 할 시간인가요? (선택)</label><input class="inp" id="tLabel" placeholder="예: 모둠 토의">
+        <div class="chips">${[1, 3, 5, 10, 15].map((m) => `<button class="chipbtn" data-min="${m}" style="flex:1">${m}분</button>`).join('')}</div>
+        <div class="row"><input class="inp" id="tMin" type="number" min="1" max="120" placeholder="직접 (분)"><button class="btn lav" data-sh="startCustom" style="white-space:nowrap">시작</button></div>`}`;
+  }
+  if (k === 'pick') {
+    const used = (R.live.pickUsed || []).length;
+    const n = kids().length;
+    h = `<span class="pen" style="font-size:34px;line-height:1">랜덤 뽑기</span>
+      ${o?.type === 'pick' ? `<div class="card" style="text-align:center"><div class="lbl">방금 뽑힌 친구</div><div class="pen" style="font-size:52px;line-height:1">${esc(o.no)}번 ${esc(o.name)}</div></div>` : ''}
+      <label class="lbl" for="pTitle">무엇을 뽑나요?</label><input class="inp" id="pTitle" value="${esc(o?.type === 'pick' ? o.title || '' : '오늘의 발표자')}">
+      <button class="btn lav wide" style="min-height:56px;font-size:18px" data-sh="pick" ${n ? '' : 'disabled'}>뽑기!</button>
+      <div class="row help">이미 뽑힌 친구 ${used}명 · 남은 친구 ${Math.max(0, n - used)}명
+        <button class="btn small ghost" style="margin-left:auto" data-sh="pickReset">처음부터 다시</button></div>
+      ${o?.type === 'pick' ? '<button class="btn ghost wide" data-sh="ovOff">칠판에서 내리기</button>' : ''}`;
+  }
+  if (k === 'noise') {
+    const on = o?.type === 'noise';
+    h = `<span class="pen" style="font-size:34px;line-height:1">소음 신호등</span>
+      <div class="help">칠판의 마이크로 교실 소리를 재요. 처음 켤 때 칠판에서 마이크 권한을 '허용'해 주세요. 소리는 저장되지 않아요.</div>
+      <label class="lbl" for="nLabel">이름 (선택)</label><input class="inp" id="nLabel" value="${esc(on ? o.label || '' : '자습 시간')}">
+      <label class="lbl" for="nSens">민감도 <span id="nSensV">${esc(on ? o.sens || 3 : 3)}</span> (클수록 작은 소리에도 노란불)</label>
+      <input id="nSens" type="range" min="1" max="5" value="${esc(on ? o.sens || 3 : 3)}" style="width:100%">
+      ${on ? '<div class="row"><button class="btn lav" style="flex:1" data-sh="noiseOn">설정 바꾸기</button><button class="btn main" style="flex:1" data-sh="ovOff">끄기</button></div>'
+        : '<button class="btn lav wide" style="min-height:52px" data-sh="noiseOn">칠판에 켜기</button>'}`;
+  }
+  $('#sheet').innerHTML = `<div class="sheetbg" id="sheetBg"><div class="sheet"><div class="grab"></div>${h}<button class="btn ghost" data-sh="close">닫기</button></div></div>`;
+  $('#nSens')?.addEventListener('input', (e) => { $('#nSensV').textContent = e.target.value; });
+  tickSheet();
+}
+function tickSheet() {
+  const o = R.live.overlay;
+  const el = $('#shLeft');
+  if (!el || o?.type !== 'timer') return;
+  const start = tsMs(o.startedAt) ?? Number(o.localStart) ?? Date.now();
+  const left = Math.max(0, start + Number(o.durationMs) - Date.now());
+  const s = Math.ceil(left / 1000);
+  el.textContent = `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+}
+setInterval(tickSheet, 1000);
+$('#sheet').addEventListener('click', (e) => {
+  if (e.target.id === 'sheetBg') { closeSheet(); return; }
+  const m = e.target.closest('[data-min]');
+  const b = e.target.closest('[data-sh]');
+  const o = R.live.overlay;
+  const startTimer = (min) => {
+    up({ overlay: { type: 'timer', id: randomId(8), label: $('#tLabel')?.value.trim() || '', durationMs: Math.round(min * 60000), startedAt: NOW, localStart: Date.now() } });
+    toast(`${min}분 타이머 시작`);
+    setTimeout(drawSheet, 300);
+  };
+  if (m) { startTimer(Number(m.dataset.min)); return; }
+  if (!b) return;
+  const k = b.dataset.sh;
+  if (k === 'close') closeSheet();
+  if (k === 'startCustom') { const v = Number($('#tMin').value); if (v > 0 && v <= 120) startTimer(v); else toast('1~120분 사이로 적어 주세요'); }
+  if (k === 'plus' && o?.type === 'timer') up({ 'overlay.durationMs': inc(60000) });
+  if (k === 'stop' || k === 'ovOff') { up({ overlay: null }); closeSheet(); }
+  if (k === 'pick') {
+    const list = kids();
+    let used = R.live.pickUsed || [];
+    let pool = list.filter((x) => !used.includes(x.no));
+    if (!pool.length) { pool = list; used = []; toast('모두 한 번씩 뽑혀서 처음부터 다시 뽑아요'); }
+    const kid = pool[Math.floor(Math.random() * pool.length)];
+    up({
+      overlay: { type: 'pick', id: randomId(8), title: $('#pTitle').value.trim(), no: kid.no, name: kid.name, left: pool.length - 1, at: NOW },
+      pickUsed: [...used, kid.no]
+    }).then(() => setTimeout(drawSheet, 200));
+  }
+  if (k === 'pickReset') { up({ pickUsed: [] }).then(() => { toast('처음부터 다시 뽑아요'); drawSheet(); }); }
+  if (k === 'noiseOn') {
+    up({ overlay: { type: 'noise', id: randomId(8), label: $('#nLabel').value.trim(), sens: Number($('#nSens').value) || 3 } });
+    toast('칠판에 소음 신호등을 켰어요'); closeSheet();
+  }
+});
+</script>
+</body>
+</html>
