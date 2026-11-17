@@ -108,7 +108,7 @@ function drawWelcome(err) {
   $('#main').innerHTML = `<div class="top"><h1>우리 반 리모컨</h1></div>
     <div class="card" style="display:flex;flex-direction:column;gap:12px">
       <div class="pen" style="font-size:30px;line-height:1.1">칠판의 QR을 찍어 주세요</div>
-      <div style="font-size:15px;line-height:1.6">전자칠판 왼쪽 아래 톱니 → <b>'선생님 폰 연결 (QR)'</b>을 누르고 폰 카메라로 찍으면 바로 연결돼요.</div>
+      <div style="font-size:15px;line-height:1.6">전자칠판 왼쪽 아래 톱니 → <b>'리모컨 연결 (QR)'</b>을 누르고 폰 카메라로 찍으면 바로 연결돼요.</div>
       <details><summary>QR 대신 주소 붙여 넣기</summary>
         <textarea class="inp" id="linkIn" rows="3" placeholder="https://…remote.html#c=…"></textarea>
         <button class="btn lav wide" id="linkOk" style="margin-top:8px">연결하기</button>
@@ -178,7 +178,7 @@ function boardState() {
   const o = R.live.overlay;
   const chk = R.live.check;
   let mid = '알림판', midBg = 'var(--lavL)';
-  if (c && !(c.ack && tsMs(c.ackAt) && Date.now() - tsMs(c.ackAt) > 4000)) { mid = c.ack ? '호출 (확인됨)' : '호출'; midBg = 'var(--memo)'; }
+  if (c && !c.ack) { mid = '호출'; midBg = 'var(--memo)'; }
   else if (o?.type === 'timer') { mid = '타이머'; midBg = 'var(--lavL)'; }
   else if (o?.type === 'pick') { mid = `뽑기 · ${o.name}`; midBg = 'var(--yelL)'; }
   else if (o?.type === 'noise') { mid = '소음 신호등'; midBg = 'var(--paper)'; }
@@ -223,7 +223,7 @@ function drawHome() {
       <div class="row" style="font-size:15px"><span>${esc(callSummary(c))}</span><span class="lbl">${tsMs(c.at) ? hm(new Date(tsMs(c.at))) : ''}</span>
         <span class="badge" style="margin-left:auto;background:${c.ack ? 'var(--mint)' : 'var(--yelL)'};color:${c.ack ? 'var(--mintD)' : 'var(--yelD)'}">${c.ack ? '지금 갈게요 ✓' : '확인 대기'}</span></div>
       ${c.ack ? '' : '<button class="btn small ghost" style="margin-top:8px" data-act="cancelCall">호출 내리기</button>'}</div>` : ''}
-    ${!chk ? '<button class="btn ghost wide" data-act="goCheck">체크 명단 시작하기 (등교·통신문·제출물…)</button>' : ''}`;
+`;
 }
 $('#main').addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]');
@@ -310,7 +310,7 @@ $('#main').addEventListener('click', (e) => {
 });
 
 /* ---------- 체크 명단 ---------- */
-const PRESETS = [['등교 체크', '등교했으면 내 이름 꾹!', '등교'], ['가정통신문', '가정통신문 냈으면 내 이름 꾹!', '완료'], ['수행평가 제출', '수행평가 냈으면 내 이름 꾹!', '제출'], ['우유 신청', '우유 신청했으면 내 이름 꾹!', '신청']];
+const PRESETS = [['등교 체크', '등교했으면 내 이름 꾹!', '등교'], ['가정통신문', '가정통신문 냈으면 내 이름 꾹!', '완료']];
 function drawCheck() {
   const chk = R.live.check;
   const list = kids();
@@ -394,7 +394,8 @@ function parseTasks(t) {
     if (!date) return null;
     let type = '수행';
     let rest = parts.slice(1);
-    if (['수행', '준비물', '학사', '마감'].includes(rest[0])) { type = rest[0] === '마감' ? '수행' : rest[0]; rest = rest.slice(1); }
+    const KEY = { 우리반: '수행', 반: '수행', 일정: '수행', 수행: '수행', 마감: '수행', 준비물: '준비물', 학사: '학사' };
+    if (KEY[rest[0]] && rest.length > 1) { type = KEY[rest[0]]; rest = rest.slice(1); }
     return rest.length ? { date, type, text: rest.join(' ') } : null;
   }).filter(Boolean);
 }
@@ -428,10 +429,10 @@ function drawBoard() {
       <textarea class="inp" id="bClose" rows="3">${esc((b.closingItems || DEFAULT_CLOSING).join('\n'))}</textarea>
     </div>
     <div class="card sec">
-      <label for="bTasks">이번 주 일정 · 마감 <span class="help">(날짜 종류 내용 — 종류: 수행 · 준비물 · 학사)</span></label>
-      <textarea class="inp" id="bTasks" rows="4" placeholder="11/17 수행 국어 수행평가 마감&#10;11/18 준비물 체육복">${esc((b.tasks || []).map((t) => `${md(t.date)} ${t.type} ${t.text}`).join('\n'))}</textarea>
+      <label for="bTasks">우리 반 일정 <span class="help">(날짜 내용 — 내용 앞에 '준비물'이나 '학사'를 붙이면 색이 달라져요)</span></label>
+      <textarea class="inp" id="bTasks" rows="4" placeholder="11/17 국어 수행평가&#10;11/18 준비물 체육복">${esc((b.tasks || []).map((t) => `${md(t.date)} ${t.type === '수행' ? '' : `${t.type} `}${t.text}`).join('\n'))}</textarea>
       <label for="bDday">D-day <span class="help">(이름 날짜)</span></label>
-      <textarea class="inp" id="bDday" rows="2" placeholder="기말고사 12/3">${esc((b.ddays || []).map((d) => `${d.label} ${md(d.date)}`).join('\n'))}</textarea>
+      <textarea class="inp" id="bDday" rows="2" placeholder="1회 정기시험 12/3">${esc((b.ddays || []).map((d) => `${d.label} ${md(d.date)}`).join('\n'))}</textarea>
       <div class="help">학사일정(NEIS)은 자동으로 들어가요. 지난 일정은 저장할 때 정리돼요.</div>
     </div>
     <button class="btn lav wide" style="position:sticky;bottom:80px;min-height:54px;font-size:17px;box-shadow:0 8px 20px rgba(70,58,115,.25)" data-b="save">칠판에 반영하기</button>`;
@@ -477,7 +478,7 @@ function drawSet() {
   $('#main').innerHTML = `${topBar('설정')}
     <div class="card sec">
       <label for="sStu">학생 명단 <span class="help">(번호 이름 생일 — 엑셀·나이스에서 복사해 붙여 넣기)</span></label>
-      <textarea class="inp" id="sStu" rows="8" placeholder="1&#9;김하늘&#9;3/14">${esc(studentsToText(s.students))}</textarea>
+      <textarea class="inp" id="sStu" rows="8" placeholder="1&#9;김채아&#9;9/14">${esc(studentsToText(s.students))}</textarea>
       <div class="help" id="sStuN">${(s.students || []).length}명</div>
     </div>
     <div class="card sec">
@@ -498,7 +499,7 @@ function drawSet() {
         <div class="sec" style="flex:1"><label for="sClosing">종례 화면(분)</label><input class="inp" id="sClosing" type="number" min="5" max="90" value="${esc(a.closingMins || 30)}"></div>
       </div>
       <label for="sFirst">1교시 시작 <span class="help">(컴시간에 시각이 없을 때만 써요)</span></label>
-      <input class="inp" id="sFirst" type="time" value="${esc(a.firstStart || '08:50')}">
+      <input class="inp" id="sFirst" type="time" value="${esc(a.firstStart || '09:00')}">
     </div>
     <div class="card sec">
       <div style="font-size:15px">칭찬 별</div>
@@ -539,7 +540,7 @@ $('#main').addEventListener('click', async (e) => {
       'auto.attendance': $('#sAttend').checked,
       'auto.classMins': Math.min(60, Math.max(30, Number($('#sClass').value) || 45)),
       'auto.closingMins': Math.min(90, Math.max(5, Number($('#sClosing').value) || 30)),
-      'auto.firstStart': $('#sFirst').value || '08:50'
+      'auto.firstStart': $('#sFirst').value || '09:00'
     }).catch((err) => toast(`저장하지 못했어요 (${err.code || err.message})`));
     await up({ stars: { count: Math.max(0, Number($('#sStar').value) || 0), goal: Math.max(1, Number($('#sGoal').value) || 50), reward: $('#sReward').value.trim() } });
     R.dirty = false;
@@ -562,7 +563,7 @@ function drawSheet() {
     const running = o?.type === 'timer';
     h = `<div class="row"><span class="pen" style="font-size:34px;line-height:1">타이머</span></div>
       ${running ? `<div class="card" style="text-align:center"><div class="lbl">${esc(o.label || '타이머')}</div><div class="pen" style="font-size:64px;line-height:1" id="shLeft">--:--</div></div>
-        <div class="row"><button class="btn" style="flex:1" data-sh="plus">+1분</button><button class="btn main" style="flex:1" data-sh="stop">끝내기</button></div>`
+        <div class="row"><button class="btn" style="flex:1" data-sh="minus">−1분</button><button class="btn" style="flex:1" data-sh="plus">+1분</button><button class="btn main" style="flex:1.2" data-sh="stop">끝내기</button></div>`
       : `<label class="lbl" for="tLabel">무엇을 할 시간인가요? (선택)</label><input class="inp" id="tLabel" placeholder="예: 모둠 토의">
         <div class="chips">${[1, 3, 5, 10, 15].map((m) => `<button class="chipbtn" data-min="${m}" style="flex:1">${m}분</button>`).join('')}</div>
         <div class="row"><input class="inp" id="tMin" type="number" min="1" max="120" placeholder="직접 (분)"><button class="btn lav" data-sh="startCustom" style="white-space:nowrap">시작</button></div>`}`;
@@ -618,6 +619,10 @@ $('#sheet').addEventListener('click', (e) => {
   if (k === 'close') closeSheet();
   if (k === 'startCustom') { const v = Number($('#tMin').value); if (v > 0 && v <= 120) startTimer(v); else toast('1~120분 사이로 적어 주세요'); }
   if (k === 'plus' && o?.type === 'timer') up({ 'overlay.durationMs': inc(60000) });
+  if (k === 'minus' && o?.type === 'timer') {
+    const start = tsMs(o.startedAt) ?? Number(o.localStart) ?? Date.now();
+    up({ 'overlay.durationMs': Math.max(Date.now() - start + 1000, Number(o.durationMs) - 60000) });
+  }
   if (k === 'stop' || k === 'ovOff') { up({ overlay: null }); closeSheet(); }
   if (k === 'pick') {
     const list = kids();

@@ -35,6 +35,9 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .tchips button{min-height:42px;padding:0 14px;border-radius:21px;border:1.5px solid rgba(58,52,70,.15);background:rgba(255,253,248,.75);font-size:16px}
 .tchips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .tgo{min-height:52px;border:none;border-radius:16px;font-size:19px;color:#fff;background:var(--ink)}
+.tstep{display:flex;align-items:center;gap:8px}
+.tstep button{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(58,52,70,.15);background:rgba(255,253,248,.75);font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.tstep input{width:90px;height:48px;border:1.5px solid rgba(58,52,70,.2);border-radius:12px;background:var(--paper);text-align:center;font-size:24px}
 .ovx{position:absolute;top:10px;right:12px;min-height:36px;padding:0 12px;border-radius:18px;border:1.5px solid rgba(58,52,70,.18);background:rgba(255,253,248,.8);font-size:14px;color:var(--muted2);z-index:2}
 .brand{position:absolute;right:16px;bottom:22px;writing-mode:vertical-rl;font-size:12px;letter-spacing:2px;color:var(--muted)}
 .page{position:relative;flex:1;border-radius:14px;box-shadow:0 14px 30px rgba(70,58,115,.22);background-color:var(--page);background-image:linear-gradient(#ebe5d8 1px,transparent 1px),linear-gradient(90deg,#ebe5d8 1px,transparent 1px);background-size:22px 22px;padding:26px 28px 20px;display:grid;grid-template-columns:290px minmax(0,1fr) 290px;grid-template-rows:56px minmax(0,1fr) 188px;gap:16px 24px}
@@ -48,7 +51,7 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .t-lav{background:repeating-linear-gradient(45deg,#e4d4f4 0 8px,#f1e8fa 8px 16px)}
 .h{font-family:'Nanum Pen Script',cursive;font-size:32px;line-height:1}
 .hl{background:linear-gradient(transparent 55%,var(--hl) 55%);padding:0 4px}
-.chip{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:4px 14px 4px 10px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:0 14px 0 10px;height:40px;white-space:nowrap}
 .muted{color:var(--muted)}
 .muted2{color:var(--muted2)}
 .row{display:flex;align-items:center;gap:12px;padding:0 4px;border-bottom:1.5px dashed var(--dash)}
@@ -105,9 +108,9 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .cardstack{position:relative;width:240px;height:150px;margin:12px 0 18px}
 .cardstack i{position:absolute;inset:0;border-radius:14px}
 .cardstack .front{background:var(--paper);border:2px solid var(--pink);box-shadow:0 8px 16px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;justify-content:center}
-.noise{background:var(--paper);border:2px solid var(--line);padding:20px 30px;border-radius:18px;box-shadow:0 16px 30px rgba(70,58,115,.22);align-items:center;gap:12px}
-.lights{display:flex;gap:22px;background:var(--ink);padding:16px 26px;border-radius:60px}
-.lights i{width:86px;height:86px;border-radius:50%;opacity:.35;transition:all .3s}
+.noise{background:var(--paper);border:2px solid var(--line);padding:16px 26px;border-radius:18px;box-shadow:0 16px 30px rgba(70,58,115,.22);align-items:center;gap:10px;text-align:center;overflow:hidden}
+.lights{display:flex;gap:18px;background:var(--ink);padding:12px 22px;border-radius:60px}
+.lights i{width:70px;height:70px;border-radius:50%;opacity:.35;transition:all .3s}
 .lights i.on{opacity:1}
 .question{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:16px 26px 18px;box-shadow:0 4px 10px rgba(70,58,115,.08);gap:10px;justify-content:flex-start}
 .ribbon{align-self:center;display:flex;align-items:center;gap:8px;background:var(--pink);color:#5a1f28;font-size:17px;padding:6px 22px;border-radius:4px;margin-top:-30px;box-shadow:0 4px 8px rgba(120,40,80,.18)}
@@ -115,7 +118,8 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .brk .box{background:var(--paper);border-radius:10px;padding:10px 14px}
 
 /* 급식 */
-.meal{padding:24px 18px 14px;overflow:hidden}
+.meal{padding:24px 18px 14px;overflow:hidden;display:flex;flex-direction:column}
+#meal{flex:1;min-height:0;overflow:hidden}
 .meal .row{height:42px}
 
 /* 아래 띠 */
@@ -192,7 +196,7 @@ textarea.inp{resize:none;line-height:1.5}
       <div class="hdr">
         <div class="title"><span class="pen" id="title">우리 반 칠판</span></div>
         <div class="chip" id="stars" style="margin-left:8px"></div>
-        <div class="chip" id="weather" style="margin-left:auto;display:none"></div>
+        <div class="chip" id="weather" style="margin-left:auto;display:none;padding-right:8px"></div>
         <div style="display:flex;align-items:baseline;gap:16px;margin-left:10px;white-space:nowrap">
           <span class="pen" style="font-size:44px;line-height:1" id="date"></span>
           <span class="pen" style="font-size:48px;line-height:1;color:#6a5a9e" id="clock"></span>
@@ -232,7 +236,7 @@ textarea.inp{resize:none;line-height:1.5}
 
 <script type="module">
 import {
-  esc, $, pad, tsMs, todayKey, ymd, hm, minutesOf, fromMinutes, weekMonday, DAYS, DAYS_EN, callText,
+  esc, $, $$, pad, tsMs, todayKey, ymd, hm, minutesOf, fromMinutes, weekMonday, DAYS, DAYS_EN, callText,
   randomId, loadLocal, saveLocal, remoteUrl, boardUrl, connFromHash, parseFirebaseConfig, parseStudents,
   defaultRelay, relay, connectFirebase, demoStore, defaultSettings, defaultLive, DEL, NOW, inc, decodeLink, demoData, sharedDemo, ask
 } from './common.js';
@@ -292,7 +296,7 @@ function periodStarts(count) {
   const cls = Number(a.classMins) || 45;
   let times = (st.tt?.times || []).map(minutesOf).filter((x) => x !== null);
   if (times.length < count) {
-    let t = minutesOf(a.firstStart) ?? 530;
+    let t = minutesOf(a.firstStart) ?? 540;
     times = [];
     for (let i = 0; i < count; i++) { times.push(t); t += cls + 10 + (i === 3 ? 50 : 0); }
   }
@@ -330,8 +334,11 @@ function renderHeader() {
   const s = st.live.stars || { count: 0, goal: 50 };
   const goal = Math.max(1, Number(s.goal) || 50);
   const pct = Math.min(100, Math.round((Number(s.count) || 0) / goal * 100));
-  $('#stars').innerHTML = `<div class="jar" aria-hidden="true"><b></b><i><u style="height:${pct}%"></u></i></div>
-    <span style="font-size:15px">칭찬 별</span><span class="pen" style="font-size:28px;line-height:1;color:var(--yelD)">${esc(s.count || 0)} / ${esc(goal)}</span>`;
+  const fill = 100 - pct;
+  $('#stars').innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+      <defs><linearGradient id="starFill" x1="0" y1="0" x2="0" y2="1"><stop offset="${fill}%" stop-color="#fffdf8"></stop><stop offset="${fill}%" stop-color="#ffd25e"></stop></linearGradient></defs>
+      <path d="M12 2.6l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="url(#starFill)" stroke="#e0a83a" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+    <span style="font-size:15px">칭찬 별</span><span class="pen" style="font-size:26px;line-height:1;color:var(--yelD)">${esc(s.count || 0)} / ${esc(goal)}</span>`;
   const w = st.weather;
   const wEl = $('#weather');
   if (w) {
@@ -400,7 +407,7 @@ function renderPanel() {
     const notices = (b.notices || []).filter(Boolean);
     const cleaning = (b.cleaning || []).filter((c) => c.zone);
     if (!duty.length && !notices.length && !cleaning.length) {
-      body = '<div class="empty">선생님 폰 리모컨의 \'알림판\'에서 주번·청소·알림을 적으면 여기에 보여요.</div>';
+      body = '<div class="empty">리모컨의 \'알림판\'에서 주번·청소·알림을 적으면 여기에 보여요.</div>';
     } else {
       body = `<div class="cols">
         <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
@@ -438,10 +445,13 @@ function renderMeal() {
   const m = st.meal;
   if (!m) { $('#meal').innerHTML = `<div class="empty">${st.mealError ? esc(st.mealError) : '급식을 불러오는 중이에요…'}</div>`; return; }
   if (!m.menu.length) { $('#meal').innerHTML = '<div class="empty">오늘은 급식이 없어요</div>'; return; }
-  const h = m.menu.length > 7 ? 34 : 42;
-  $('#meal').innerHTML = m.menu.slice(0, 9).map((x) => `<div class="row" style="height:${h}px">
-    <span class="dot" style="width:12px;height:12px;background:#a8d8c0"></span>
-    <span style="font-size:${m.menu.length > 7 ? 19 : 22}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x)}</span></div>`).join('');
+  const list = m.menu.slice(0, 12);
+  const avail = $('#meal').clientHeight || 262;
+  const h = Math.max(20, Math.min(42, Math.floor(avail / list.length)));
+  const fs = Math.max(13, Math.min(22, Math.round(h * 0.55)));
+  $('#meal').innerHTML = list.map((x) => `<div class="row" style="height:${h}px;gap:${h < 30 ? 8 : 12}px">
+    <span class="dot" style="width:${h < 30 ? 9 : 12}px;height:${h < 30 ? 9 : 12}px;background:#a8d8c0"></span>
+    <span style="font-size:${fs}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x)}</span></div>`).join('');
 }
 
 /* ---- 가운데 덮개 ---- */
@@ -449,7 +459,7 @@ function activeCall() {
   const c = st.live.call;
   if (!c || !c.id) return null;
   const at = tsMs(c.at);
-  if (c.ack && tsMs(c.ackAt) && Date.now() - tsMs(c.ackAt) > 4000) return null;
+  if (c.ack) return null;
   if (at && Date.now() - at > 10 * 60 * 1000) return null;
   return c;
 }
@@ -473,7 +483,7 @@ function renderOverlay() {
       </div>
       <div class="pen who" style="font-size:${t.who.length > 16 ? 46 : 64}px">${esc(t.who)}</div>
       <div class="pen where" style="font-size:${t.where.length <= 14 ? 50 : t.where.length <= 24 ? 42 : t.where.length <= 40 ? 34 : 28}px;line-height:1.1">${esc(t.where)}</div>
-      ${c.ack ? '<div class="btn-go" style="background:#3f9a6e">갔어요! 확인했어요</div>' : '<button class="btn-go" id="ackBtn">지금 갈게요!</button>'}
+      <button class="btn-go" id="ackBtn">지금 갈게요!</button>
     </div>`;
   } else if (o && o.type === 'timer') {
     key = `timer-${o.id}`;
@@ -494,7 +504,7 @@ function renderOverlay() {
     html = `<div class="ov noise"><button class="ovx" data-ovx>닫기</button>
       <div style="font-size:17px" class="muted">소음 신호등${o.label ? ` · ${esc(o.label)}` : ''}</div>
       <div class="lights"><i id="nG" style="background:#7ccf9f"></i><i id="nY" style="background:#f0cf6a"></i><i id="nR" style="background:#f08a9a"></i></div>
-      <div class="pen" style="font-size:52px;line-height:1" id="nMsg">마이크를 켜는 중…</div>
+      <div class="pen" style="font-size:36px;line-height:1.1;max-width:100%" id="nMsg">마이크를 켜는 중…</div>
       <div style="font-size:14px" class="muted" id="nSub">초록불을 10분 지키면 칭찬 별 1개!</div></div>`;
   } else if (ph.phase === 'morning') {
     const b = st.live.board || {};
@@ -514,9 +524,9 @@ function renderOverlay() {
     const prep = todayTasks('준비물').map((t) => t.text);
     key = `break-${ph.next}`;
     html = `<div class="ov flat brk">
-      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
-        <span style="font-size:16px;color:var(--mintD)">${ph.next + 1}교시 ${esc(nx.subject || '')}까지</span>
-        <span class="pen" style="font-size:110px;line-height:.9" id="bLeft">--:--</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;flex:0 0 230px;width:230px">
+        <span style="font-size:16px;color:var(--mintD);white-space:nowrap">${ph.next + 1}교시 ${esc(nx.subject || '')}까지</span>
+        <span class="pen" style="font-size:110px;line-height:.9;display:block;width:230px;text-align:center;font-variant-numeric:tabular-nums" id="bLeft">--:--</span></div>
       <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">
         <div class="box"><div style="font-size:13px" class="muted">${nx.room ? '어디로?' : '다음 수업'}</div>
           <div style="font-size:22px">${esc(nx.room || nx.subject || '')}${nx.room ? ' <span class="badge" style="background:var(--yel);color:var(--yelD);font-size:13px">이동 수업</span>' : ''}</div></div>
@@ -628,7 +638,7 @@ function renderBottom() {
   el.innerHTML = `<div class="tape t-yel" style="left:60px;margin:0;width:110px;transform:rotate(-2deg)"></div>
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
       <span class="pen" style="font-size:32px;line-height:1">${new Date().getDay() % 6 === 0 ? '다음 주 일정' : '이번 주 일정'}</span>
-      ${Object.entries(typeColor).map(([k, c]) => `<span style="display:flex;align-items:center;gap:5px;font-size:13px" class="muted"><span class="dot" style="width:10px;height:10px;background:${c}"></span>${k === '학사' ? '학사일정' : k === '수행' ? '수행·마감' : k}</span>`).join('')}
+      ${Object.entries(typeColor).map(([k, c]) => `<span style="display:flex;align-items:center;gap:5px;font-size:13px" class="muted"><span class="dot" style="width:10px;height:10px;background:${c}"></span>${k === '학사' ? '학사일정' : k === '수행' ? '우리 반 일정' : k}</span>`).join('')}
       <div style="margin-left:auto;display:flex;gap:10px">${dd.map((x, i) => `<span class="dd" style="background:${i ? '#fbe1e2' : '#e4e9fa'};transform:rotate(${i ? 2 : -2}deg)">${esc(x.label)} <span class="pen" style="font-size:24px;line-height:1">${x.n === 0 ? 'D-DAY' : `D-${x.n}`}</span></span>`).join('')}</div>
     </div>
     <div class="week">${days.map((x) => `<div class="wday ${x.k === tk ? 'today' : ''}">
@@ -699,17 +709,22 @@ function renderTools() {
     if (o?.type === 'timer') {
       body = `<div class="lab">${esc(o.label || '타이머')} 진행 중</div>
         <div class="pen" style="font-size:72px;line-height:1;text-align:center" id="tpLeft">--:--</div>
-        <div style="display:flex;gap:8px"><button class="tgo" style="flex:1;background:${t.bg};color:${t.fg}" data-t="plus">+1분</button><button class="tgo" style="flex:1;background:var(--pinkD)" data-t="stop">끝내기</button></div>`;
+        <div style="display:flex;gap:8px"><button class="tgo" style="flex:1;background:${t.bg};color:${t.fg}" data-t="minus">−1분</button><button class="tgo" style="flex:1;background:${t.bg};color:${t.fg}" data-t="plus">+1분</button><button class="tgo" style="flex:1.2;background:var(--pinkD)" data-t="stop">끝내기</button></div>`;
     } else {
-      body = `<div class="lab">몇 분?</div><div class="tchips">${[1, 3, 5, 10, 15, 20].map((m) => chip('min', m, s.min, `${m}분`)).join('')}</div>
-        <button class="tgo" style="background:${t.go}" data-t="start">▶ ${s.min}분 시작</button>`;
+      body = `<div class="lab">시간</div><div class="tchips">${[1, 3, 5, 10, 15, 20].map((m) => chip('min', m, s.min, `${m}분`)).join('')}</div>
+        <div class="tstep"><span class="lab" style="margin-right:auto">직접</span>
+          <button data-t="mDown" aria-label="1분 줄이기">−</button>
+          <input id="tpMin" type="number" inputmode="numeric" min="1" max="120" value="${s.min}" aria-label="분">
+          <span style="font-size:18px">분</span>
+          <button data-t="mUp" aria-label="1분 늘리기">+</button></div>
+        <button class="tgo" style="background:${t.go}" data-t="start" id="tpGo">▶ ${s.min}분 시작</button>`;
     }
   } else if (k === 'pick') {
     const kids = st.settings?.students || [];
     const used = (st.live.pickUsed || []).length;
     body = `<button class="tgo" style="background:${t.go}" data-t="pick" ${kids.length ? '' : 'disabled'}>뽑기!</button>
       <div style="display:flex;align-items:center;gap:8px" class="lab">뽑힌 친구 ${used}명 · 남은 친구 ${Math.max(0, kids.length - used)}명
-        <button class="tchips" style="margin-left:auto;min-height:38px;padding:0 12px;border-radius:19px;border:1.5px dashed rgba(58,52,70,.3);background:transparent" data-t="pickReset">처음부터</button></div>
+        <button style="margin-left:auto;height:40px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;line-height:1;border-radius:20px;border:1.5px dashed rgba(58,52,70,.3);background:transparent;font-size:14px;color:var(--muted2)" data-t="pickReset">처음부터</button></div>
       ${kids.length ? '' : '<div class="lab">학생 명단이 없어요. 리모컨 \'설정\'에서 넣어 주세요.</div>'}`;
   } else if (k === 'noise') {
     const on = o?.type === 'noise';
@@ -763,14 +778,28 @@ $('#tool').addEventListener('click', (e) => {
   const done = () => { st.tool = null; renderTools(); };
   switch (t.dataset.t) {
     case 'close': done(); break;
-    case 'start': u({ overlay: { type: 'timer', id: randomId(8), label: '', durationMs: s.min * 60000, startedAt: NOW, localStart: Date.now() } }); done(); break;
+    case 'start': u({ overlay: { type: 'timer', id: randomId(8), label: '', durationMs: Math.max(1, Math.min(120, s.min)) * 60000, startedAt: NOW, localStart: Date.now() } }); done(); break;
     case 'plus': if (o?.type === 'timer') u({ 'overlay.durationMs': inc(60000) }); break;
+    case 'minus': if (o?.type === 'timer') u({ 'overlay.durationMs': shorterTimer(o) }); break;
+    case 'mDown': s.min = Math.max(1, s.min - 1); renderTools(); break;
+    case 'mUp': s.min = Math.min(120, s.min + 1); renderTools(); break;
     case 'stop': case 'off': u({ overlay: null }); done(); break;
     case 'pick': pickOne(''); done(); break;
     case 'pickReset': u({ pickUsed: [] }).then(() => { toast('처음부터 다시 뽑아요'); renderTools(); }); break;
     case 'noiseOn': u({ overlay: { type: 'noise', id: randomId(8), label: '', sens: s.sens } }); done(); break;
   }
 });
+// 분을 직접 입력
+$('#tool').addEventListener('input', (e) => {
+  if (e.target.id !== 'tpMin') return;
+  const v = Math.round(Number(e.target.value));
+  if (v >= 1 && v <= 120) { st.toolSel.min = v; $('#tpGo').textContent = `▶ ${v}분 시작`; $$('#tool [data-min]').forEach((x) => x.classList.toggle('on', Number(x.dataset.min) === v)); }
+});
+// −1분: 이미 지난 시간보다 짧아지지는 않게
+function shorterTimer(o) {
+  const start = tsMs(o.startedAt) ?? tsMs(o.localStart) ?? Date.now();
+  return Math.max(Date.now() - start + 1000, Number(o.durationMs) - 60000);
+}
 // 패널 밖을 누르면 닫혀요
 $('#stage').addEventListener('pointerdown', (e) => {
   if (st.tool && !e.target.closest('#tool') && !e.target.closest('#idx')) { st.tool = null; renderTools(); }
@@ -1070,7 +1099,7 @@ function toast(msg) {
 $('#gear').addEventListener('click', () => {
   if ($('#menu').innerHTML) { $('#menu').innerHTML = ''; return; }
   $('#menu').innerHTML = `<div class="menu">
-    ${st.conn && !st.conn.demo ? '<button data-m="qr">선생님 폰 연결 (QR)</button>' : ''}
+    ${st.conn && !st.conn.demo ? '<button data-m="qr">리모컨 연결 (QR)</button>' : ''}
     <button data-m="fs">전체 화면</button>
     ${st.conn?.demo ? '<button data-m="demo">체험 조작판 열기/닫기</button>' : ''}
     <button data-m="reload">새로 고침</button>
@@ -1100,7 +1129,7 @@ function qrSvg(text) {
 function showQr() {
   const url = remoteUrl(st.conn);
   $('#full').innerHTML = `<div class="full"><div class="sheet" style="width:760px;align-items:center;text-align:center">
-    <div class="h" style="font-size:44px">선생님 폰 연결하기</div>
+    <div class="h" style="font-size:44px">리모컨 연결하기</div>
     <div style="font-size:16px">폰 카메라로 QR을 찍으면 리모컨이 열려요. 폰에서는 아무것도 입력하지 않아도 돼요.</div>
     <div class="qrbox">${qrSvg(url)}</div>
     <div class="help" style="max-width:640px">이 QR에는 칠판 연결 정보가 들어 있어요. 학생이 찍지 않도록 선생님만 볼 때 띄워 주세요.<br>QR이 안 찍히면 이 주소를 선생님 폰으로 보내도 돼요.</div>
@@ -1137,18 +1166,18 @@ function drawWizard() {
     h = `<div style="text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center">
       <div style="position:relative;display:inline-block"><div style="position:absolute;left:-14px;right:-14px;top:30px;height:30px;background:repeating-linear-gradient(45deg,#f7c6c7 0 10px,#fbdcdc 10px 20px);transform:rotate(-2deg)"></div>
       <span class="pen" style="position:relative;font-size:72px;line-height:1">우리 반 칠판 시작하기</span></div>
-      <div style="font-size:18px;line-height:1.6">시간표 · 급식 · 호출 · 체크 명단을 전자칠판에 띄워 두는 앱이에요.<br>처음 한 번만 설정하면 돼요. (5분 정도 걸려요)</div>
+      <div style="font-size:18px;line-height:1.6">시간표 · 급식 · 호출 · 체크 명단 등을 전자칠판에 띄워 두는 앱이에요.<br>처음 한 번만 설정하면 돼요. (5분 정도 걸려요)</div>
       <div style="display:flex;gap:12px;margin-top:10px">
         <button class="btn main" data-go="1" style="font-size:20px;padding:16px 30px">처음 설정하기</button>
         <button class="btn" data-go="link" style="font-size:20px;padding:16px 30px">이미 만든 칠판 연결하기</button>
         <button class="btn ghost" data-go="demo" style="font-size:20px;padding:16px 30px">체험해 보기</button>
       </div>
-      <div class="help">체험 모드는 예시 데이터로 이 기기 안에서만 움직여요. 선생님 폰과 연결되지 않아요.</div>
+      <div class="help">체험 모드는 예시 데이터로 이 기기 안에서만 움직여요.</div>
       ${st.settings ? '<button class="btn ghost" data-go="cancel">설정 그대로 두고 돌아가기</button>' : ''}
     </div>`;
   } else if (s === 'link') {
     h = `<div class="h" style="font-size:42px">이미 만든 칠판 연결하기</div>
-      <div style="font-size:16px;line-height:1.6">칠판을 새로 켰거나 다른 컴퓨터로 옮겼을 때 써요.<br>선생님 폰 리모컨 → 설정 → <b>'칠판 연결 주소 복사'</b>로 받은 주소를 붙여 넣어 주세요.</div>
+      <div style="font-size:16px;line-height:1.6">칠판을 새로 켰거나 다른 컴퓨터로 옮겼을 때 써요.<br>리모컨 → 설정 → <b>'칠판 연결 주소 복사'</b>로 받은 주소를 붙여 넣어 주세요.</div>
       <textarea class="inp" id="linkIn" rows="4" placeholder="https://…#c=…"></textarea>
       <div class="err">${esc(wz.error)}</div>
       <div class="nav"><button class="btn ghost" data-go="0">← 처음으로</button><button class="btn main" data-go="linkOk">연결하기</button></div>`;
@@ -1161,7 +1190,7 @@ function drawWizard() {
   } else if (s === 2) {
     const r = wz.results;
     h = `${stepsBar(2)}<div class="h" style="font-size:40px">② 학교와 우리 반</div>
-      <div style="display:flex;gap:8px"><input class="inp" id="schoolQ" style="flex:1" placeholder="학교 이름 (예: 동수영중)" value="${esc(wz.q || '')}"><button class="btn main" data-go="search">검색</button></div>
+      <div style="display:flex;gap:8px"><input class="inp" id="schoolQ" style="flex:1" placeholder="학교 이름" value="${esc(wz.q || '')}"><button class="btn main" data-go="search">검색</button></div>
       ${r ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0">
         <div class="field"><label>컴시간 학교 <span class="help">(시간표)</span></label><div class="list" style="height:170px">${r.comci.length ? r.comci.map((x, i) => `<button class="opt ${wz.comci?.code === x.code ? 'on' : ''}" data-comci="${i}">${esc(x.name)} <span class="help">${esc(x.region)}</span></button>`).join('') : `<div class="opt help">${esc(r.errors?.comci || '검색 결과가 없어요')}</div>`}</div></div>
         <div class="field"><label>NEIS 학교 <span class="help">(급식·학사일정)</span></label><div class="list" style="height:170px">${r.neis.length ? r.neis.map((x, i) => `<button class="opt ${wz.neis?.code === x.code ? 'on' : ''}" data-neis="${i}">${esc(x.name)} <span class="help">${esc(x.region)} · ${esc(x.kind)}</span></button>`).join('') : `<div class="opt help">${esc(r.errors?.neis || '검색 결과가 없어요')}</div>`}</div></div>
@@ -1179,9 +1208,9 @@ function drawWizard() {
   } else if (s === 3) {
     const list = parseStudents(wz.studentsText);
     h = `${stepsBar(3)}<div class="h" style="font-size:40px">③ 학생 명단</div>
-      <div class="help" style="font-size:15px">엑셀이나 나이스에서 <b>번호 · 이름</b> 두 칸을 복사해 붙여 넣어 주세요. 셋째 칸에 생일(예: 3/14)을 넣으면 아침 화면에 생일 축하가 떠요. 지금 건너뛰고 나중에 리모컨에서 넣어도 돼요.</div>
+      <div class="help" style="font-size:15px">엑셀이나 나이스에서 <b>번호 · 이름</b> 두 칸을 복사해 붙여 넣어 주세요. 셋째 칸에 생일(예: 9/14)을 넣으면 아침 화면에 생일 축하가 떠요. 지금 건너뛰고 나중에 리모컨에서 넣어도 돼요.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:0">
-        <textarea class="inp" id="stuIn" rows="10" placeholder="1&#9;김하늘&#9;3/14&#10;2&#9;이바다&#10;3&#9;박구름">${esc(wz.studentsText)}</textarea>
+        <textarea class="inp" id="stuIn" rows="10" placeholder="1&#9;김채아&#9;9/14&#10;2&#9;이바다&#10;3&#9;박구름">${esc(wz.studentsText)}</textarea>
         <div class="list" style="padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;height:262px" id="stuPrev">${list.map((k) => `<span class="badge" style="background:#efe5f9;font-size:14px;padding:4px 10px">${k.no} ${esc(k.name)}${k.bday ? ` · ${esc(k.bday)}` : ''}</span>`).join('') || '<span class="help">미리보기가 여기에 나와요</span>'}</div>
       </div>
       <div class="help" id="stuCount">${list.length}명</div>
@@ -1196,7 +1225,7 @@ function drawWizard() {
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="h" style="font-size:42px">다 됐어요!</div>
         <div style="font-size:17px;line-height:1.6">이제 <b>선생님 폰 카메라로 QR</b>을 찍으면 리모컨이 열려요.<br>폰에서는 아무것도 입력하지 않아도 돼요.</div>
-        <div class="help">QR은 나중에 왼쪽 아래 톱니 → '선생님 폰 연결'에서 다시 볼 수 있어요.<br>이 QR에는 칠판 연결 정보가 들어 있으니 학생이 찍지 않게 해 주세요.</div>
+        <div class="help">QR은 나중에 왼쪽 아래 톱니 → '리모컨 연결'에서 다시 볼 수 있어요.<br>이 QR에는 칠판 연결 정보가 들어 있으니 학생이 찍지 않게 해 주세요.</div>
         <button class="btn main" data-go="finish" style="align-self:flex-start;font-size:20px">칠판 시작하기</button>
       </div></div>`;
   }
@@ -1328,7 +1357,7 @@ function startDemo() {
   const { settings, live } = demoData();
   st.conn = { demo: true };
   st.tt = {
-    source: 'demo', times: ['08:50', '09:45', '10:40', '11:35', '13:20', '14:15', '15:10'],
+    source: 'demo', times: ['09:00', '09:55', '10:50', '11:45', '13:30', '14:25', '15:20'],
     days: [['국어', '수학', '영어', '과학', '음악', '도덕', '창체'], ['수학', '영어', '국어', '체육', '사회', '미술', ''], ['영어', '과학', '수학', '국어', '체육', '기가', '동아리'], ['사회', '국어', '과학', '수학', '영어', '음악', ''], ['과학', '체육', '국어', '영어', '수학', '도덕', '자율']]
       .map((d, di) => d.filter(Boolean).map((s, i) => ({ p: i + 1, subject: s, teacher: '', room: s === '과학' ? '과학실' : '', changed: di === new Date().getDay() - 1 && i === 4, before: '체육' })))
   };
@@ -1344,7 +1373,7 @@ function startDemo() {
 }
 function toggleDemoPanel(force) {
   if ($('#demo').innerHTML && force !== true) { $('#demo').innerHTML = ''; return; }
-  $('#demo').innerHTML = `<div class="demo"><b>체험 조작판 (실제로는 선생님 폰에서 해요)</b>
+  $('#demo').innerHTML = `<div class="demo"><b>체험 조작판 (실제로는 리모컨에서 해요)</b>
     <button data-d="call">호출 보내기</button><button data-d="callMsg">문장 호출</button><button data-d="timer">타이머 1분</button>
     <button data-d="pick">랜덤 뽑기</button><button data-d="noise">소음 신호등</button>
     <button data-d="check">통신문 체크</button><button data-d="close">덮개·체크 닫기</button>

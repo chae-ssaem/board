@@ -272,7 +272,7 @@ export function demoStore(settings, live) {
 }
 
 /* ---------- 처음 만들 때 기본값 ---------- */
-export const DEFAULT_PLACES = ['교무실', '상담실', '보건실', '행정실', '과학실'];
+export const DEFAULT_PLACES = ['교무실'];
 export const DEFAULT_CLOSING = ['창문 닫기', '불 끄기', '칠판 정리', '분리수거', '전자칠판 끄기'];
 export function defaultSettings() {
   return {
@@ -283,7 +283,7 @@ export function defaultSettings() {
     relay: '',
     students: [],
     places: DEFAULT_PLACES,
-    auto: { morningStart: '08:00', attendance: true, classMins: 45, closingMins: 30, firstStart: '08:50' },
+    auto: { morningStart: '08:00', attendance: true, classMins: 45, closingMins: 30, firstStart: '09:00' },
     sound: 'voice',
     version: 1
   };
@@ -324,8 +324,8 @@ export function demoData() {
       cleaning: [{ zone: '교실 바닥', names: '김하늘 · 이바다 · 박구름' }, { zone: '칠판·교탁', names: '최별 · 정솔' }, { zone: '복도', names: '강나래 · 조은결 · 윤다온' }, { zone: '분리수거', names: '장하람 · 임새봄' }],
       roles: ['칠판 지우기', '펜·지우개 정리', '불 끄기', '창문 닫기', '냉난방기', '우유 배달', '급식 수저', '분리수거', '화분 물 주기', '신발장 정리', '사물함 점검', '게시판 정리', '학습지 배부', '출석부 전달', '전자칠판 끄기', '청소함 정리'].map((r, i) => ({ role: r, name: names[(i + 10) % names.length] })),
       question: '', closingItems: ['창문 닫기', '불 끄기', '전자칠판 끄기'],
-      tasks: [{ date: dk(1), type: '수행', text: '국어 수행평가 마감' }, { date: dk(2), type: '준비물', text: '체육복' }, { date: tk, type: '준비물', text: '실험 노트' }],
-      ddays: [{ label: '현장체험학습', date: dk(3) }, { label: '기말고사', date: todayKey(new Date(Date.now() + 17 * 86400000)) }]
+      tasks: [{ date: dk(1), type: '수행', text: '국어 수행평가' }, { date: dk(2), type: '준비물', text: '체육복' }, { date: tk, type: '준비물', text: '실험 노트' }],
+      ddays: [{ label: '현장체험학습', date: dk(3) }, { label: '1회 정기시험', date: todayKey(new Date(Date.now() + 17 * 86400000)) }]
     }
   };
   return { settings, live };
