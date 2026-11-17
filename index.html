@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>우리 반 칠판</title>
+<title>채쌤보드</title>
+<link rel="manifest" href="manifest-board.webmanifest">
+<link rel="icon" type="image/png" href="icons/board-192.png">
+<link rel="apple-touch-icon" href="icons/board-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="채쌤보드">
+<meta name="theme-color" content="#e8e3f3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
@@ -1419,6 +1426,9 @@ function setAuto(i) {
   renderAll();
 }
 window.__setAuto = setAuto;
+
+/* ================= 앱 설치(홈 화면·바탕화면 아이콘) ================= */
+try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !sharedDemo()) navigator.serviceWorker.register('./sw.js').catch(() => {}); } catch { /* 미리보기 등 */ }
 
 /* ================= 시작 ================= */
 (function boot() {

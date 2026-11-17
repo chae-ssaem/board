@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#e8e3f3">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>우리 반 리모컨</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="채쌤보드 리모컨">
+<title>채쌤보드 리모컨</title>
+<link rel="manifest" href="manifest-remote.webmanifest">
+<link rel="icon" type="image/png" href="icons/remote-192.png">
+<link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap">
 <style>
 :root{
@@ -84,7 +89,7 @@ details summary{cursor:pointer;font-size:14px;color:var(--lavD);padding:6px 0}
 
 <script type="module">
 import {
-  esc, $, $$, pad, tsMs, todayKey, hm, callText, randomId, loadLocal, saveLocal, connFromHash, decodeLink,
+  esc, $, $$, pad, tsMs, todayKey, hm, callText, randomId, loadLocal, saveLocal, connFromHash, decodeLink, encodeLink,
   remoteUrl, boardUrl, callSummary, parseStudents, studentsToText, connectFirebase, demoStore, demoData, DEL, NOW, inc, DEFAULT_PLACES, DEFAULT_CLOSING, sharedDemo, ask
 } from './common.js';
 
@@ -558,7 +563,7 @@ $('#main').addEventListener('click', async (e) => {
   }
   if (k === 'boardLink') { navigator.clipboard?.writeText(boardUrl(R.conn)); toast('칠판 연결 주소를 복사했어요'); }
   if (k === 'remoteLink') { navigator.clipboard?.writeText(remoteUrl(R.conn)); toast('리모컨 연결 주소를 복사했어요'); }
-  if (k === 'logout' && ask('이 폰에서 연결을 끊을까요? 다시 쓰려면 칠판 QR을 찍어야 해요.')) { saveLocal(null); location.reload(); }
+  if (k === 'logout' && ask('이 폰에서 연결을 끊을까요? 다시 쓰려면 칠판 QR을 찍어야 해요.')) { saveLocal(null); location.replace(location.pathname); }
 });
 
 /* ---------- 아래에서 올라오는 창(타이머·뽑기·소음) ---------- */
@@ -654,7 +659,12 @@ $('#sheet').addEventListener('click', (e) => {
 /* ---------- 시작 (모든 기능을 다 읽은 뒤에) ---------- */
 (function boot() {
   const h = connFromHash();
-  if (h?.cfg && h?.classId) { saveLocal(h); history.replaceState(null, '', location.pathname); }
+  if (h?.cfg && h?.classId) saveLocal(h);
+  // 연결 정보를 주소(#c=…)에 남겨 둬요. 아이폰에서 '홈 화면에 추가'로 만든 앱은 사파리와 저장 공간이 따로라서,
+  // 주소에 있어야 홈 화면 앱으로 열어도 바로 연결돼요.
+  const saved = loadLocal();
+  if (!h && saved?.cfg && saved?.classId && !location.search.includes('demo')) history.replaceState(null, '', `${location.pathname}#c=${encodeLink(saved)}`);
+  try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !sharedDemo()) navigator.serviceWorker.register('./sw.js').catch(() => {}); } catch { /* 미리보기 등 */ }
   if (location.search.includes('demo') || sharedDemo()) {
     const { settings, live } = demoData();
     R.conn = { demo: true };

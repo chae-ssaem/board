@@ -1,0 +1,19 @@
+{
+  "id": "./index.html",
+  "name": "채쌤보드",
+  "short_name": "채쌤보드",
+  "description": "교실 전자칠판 대시보드 — 시간표·급식·호출·체크 명단",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#e8e3f3",
+  "theme_color": "#e8e3f3",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/board-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/board-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/board-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
