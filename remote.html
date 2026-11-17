@@ -209,7 +209,7 @@ function drawHome() {
       <button style="background:var(--lavL)" data-act="timer">${ic('timer', '#463a73')}타이머</button>
       <button style="background:var(--mintL)" data-act="pick">${ic('dice', '#24513d')}뽑기</button>
       <button style="background:var(--blueL)" data-act="noise">${ic('noise', '#33407a')}소음</button>
-      <button style="background:var(--yelL)" data-act="star"><span class="pen" style="font-size:24px;line-height:1;color:var(--yelD)">+1</span>칭찬 ${esc(s.count || 0)}</button>
+      ${R.settings.show?.stars === false ? '' : `<button style="background:var(--yelL)" data-act="star"><span class="pen" style="font-size:24px;line-height:1;color:var(--yelD)">+1</span>칭찬 ${esc(s.count || 0)}</button>`}
     </div>
     ${o ? `<div class="card row"><span class="badge" style="background:var(--lav);color:var(--lavD)">칠판에 표시 중</span><span style="font-size:15px">${esc({ timer: '타이머', pick: '랜덤 뽑기', noise: '소음 신호등' }[o.type] || '')}${o.label ? ` · ${esc(o.label)}` : ''}</span>
       <button class="btn small" style="margin-left:auto" data-act="${o.type}">조절</button><button class="btn small ghost" data-act="ovClose">닫기</button></div>` : ''}
@@ -414,23 +414,23 @@ function drawBoard() {
   $('#main').innerHTML = `${topBar('알림판 쓰기')}
     <div class="card sec">
       <label for="bDuty">오늘의 주번 <span class="help">(쉼표로 구분)</span></label>
-      <div class="row"><input class="inp" id="bDuty" value="${esc((b.duty || []).join(', '))}"><button class="btn small" data-b="nextDuty" style="white-space:nowrap">다음 차례</button></div>
+      <div class="row"><input class="inp" id="bDuty" value="${esc((b.duty || []).join(', '))}"><button class="btn small" data-b="nextDuty" style="white-space:nowrap" title="번호 순서대로 다음 두 명이 바로 주번이 돼요">다음 차례</button></div>
       <label for="bNotice">알림 · 준비물 <span class="help">(한 줄에 하나)</span></label>
       <textarea class="inp" id="bNotice" rows="3" placeholder="내일 체육복 챙기기">${esc((b.notices || []).join('\n'))}</textarea>
-      <label for="bQ">오늘의 질문 <span class="help">(비워 두면 질문을 자동으로 골라 줘요)</span></label>
-      <input class="inp" id="bQ" value="${esc(b.question || '')}" placeholder="아침 화면에 크게 떠요">
+      <div class="sec" style="${R.settings.show?.question === false ? 'display:none' : ''}"><label for="bQ">오늘의 질문 <span class="help">(비워 두면 질문을 자동으로 골라 줘요)</span></label>
+      <input class="inp" id="bQ" value="${esc(b.question || '')}" placeholder="아침 화면에 크게 떠요"></div>
     </div>
     <div class="card sec">
       <label for="bClean">청소 구역 <span class="help">(구역: 이름, 이름)</span></label>
       <textarea class="inp" id="bClean" rows="4" placeholder="교실 바닥: 김하늘, 이바다&#10;복도: 박구름">${esc((b.cleaning || []).map((c) => `${c.zone}: ${c.names}`).join('\n'))}</textarea>
-      <label for="bRoles">1인1역 <span class="help">(역할: 이름)</span></label>
-      <textarea class="inp" id="bRoles" rows="5" placeholder="칠판 지우기: 최별&#10;불 끄기: 정솔">${esc((b.roles || []).map((r) => `${r.role}: ${r.name}`).join('\n'))}</textarea>
+      <div class="sec" style="${R.settings.show?.roles === false ? 'display:none' : ''}"><label for="bRoles">1인1역 <span class="help">(역할: 이름)</span></label>
+      <textarea class="inp" id="bRoles" rows="5" placeholder="칠판 지우기: 최별&#10;불 끄기: 정솔">${esc((b.roles || []).map((r) => `${r.role}: ${r.name}`).join('\n'))}</textarea></div>
       <label for="bClose">하교 전 체크리스트 <span class="help">(청소 구역은 자동으로 들어가요)</span></label>
       <textarea class="inp" id="bClose" rows="3">${esc((b.closingItems || DEFAULT_CLOSING).join('\n'))}</textarea>
     </div>
     <div class="card sec">
-      <label for="bTasks">우리 반 일정 <span class="help">(날짜 내용 — 내용 앞에 '준비물'이나 '학사'를 붙이면 색이 달라져요)</span></label>
-      <textarea class="inp" id="bTasks" rows="4" placeholder="11/17 국어 수행평가&#10;11/18 준비물 체육복">${esc((b.tasks || []).map((t) => `${md(t.date)} ${t.type === '수행' ? '' : `${t.type} `}${t.text}`).join('\n'))}</textarea>
+      <label for="bTasks">우리 반 일정 <span class="help">(날짜 일정/준비물 내용 — 예: 11/17 일정 국어 수행평가)</span></label>
+      <textarea class="inp" id="bTasks" rows="4" placeholder="11/17 일정 국어 수행평가&#10;11/18 준비물 체육복">${esc((b.tasks || []).map((t) => `${md(t.date)} ${t.type === '준비물' ? '준비물' : t.type === '학사' ? '학사' : '일정'} ${t.text}`).join('\n'))}</textarea>
       <label for="bDday">D-day <span class="help">(이름 날짜)</span></label>
       <textarea class="inp" id="bDday" rows="2" placeholder="1회 정기시험 12/3">${esc((b.ddays || []).map((d) => `${d.label} ${md(d.date)}`).join('\n'))}</textarea>
       <div class="help">학사일정(NEIS)은 자동으로 들어가요. 지난 일정은 저장할 때 정리돼요.</div>
@@ -444,12 +444,14 @@ $('#main').addEventListener('click', (e) => {
   if (!b) return;
   if (b.dataset.b === 'nextDuty') {
     const list = kids();
-    if (!list.length) { toast('학생 명단이 없어요'); return; }
-    const i = (Number(R.live.board?.dutyNext) || 0) % list.length;
+    if (list.length < 2) { toast('학생 명단을 먼저 넣어 주세요'); return; }
+    // 지금 주번 중 번호가 가장 뒤인 친구의 다음 번호부터 두 명
+    const cur = $('#bDuty').value.split(/[,，·]/).map((x) => x.trim()).filter(Boolean);
+    const idx = cur.map((n) => list.findIndex((k) => k.name === n)).filter((x) => x >= 0);
+    const i = idx.length ? (Math.max(...idx) + 1) % list.length : (Number(R.live.board?.dutyNext) || 0) % list.length;
     const two = [list[i], list[(i + 1) % list.length]].map((k) => k.name);
     $('#bDuty').value = two.join(', ');
-    R.dirty = true;
-    R.nextDuty = (i + 2) % list.length;
+    up({ 'board.duty': two, 'board.dutyNext': (i + 2) % list.length }).then(() => toast(`주번을 ${two.join(', ')}(으)로 바꿨어요`));
     return;
   }
   if (b.dataset.b === 'save') {
@@ -464,7 +466,6 @@ $('#main').addEventListener('click', (e) => {
       'board.tasks': parseTasks($('#bTasks').value).filter((t) => t.date >= cutoff),
       'board.ddays': parseDdays($('#bDday').value).filter((d) => d.date >= todayKey())
     };
-    if (R.nextDuty !== undefined) { patch['board.dutyNext'] = R.nextDuty; R.nextDuty = undefined; }
     R.dirty = false;
     up(patch).then(() => { toast('칠판에 반영했어요'); draw(); });
   }
@@ -500,6 +501,11 @@ function drawSet() {
       </div>
       <label for="sFirst">1교시 시작 <span class="help">(컴시간에 시각이 없을 때만 써요)</span></label>
       <input class="inp" id="sFirst" type="time" value="${esc(a.firstStart || '09:00')}">
+    </div>
+    <div class="card sec">
+      <div style="font-size:15px">칠판에 보이기</div>
+      ${[['question', '오늘의 질문', '아침 화면에 크게 떠요'], ['stars', '칭찬 별', '머리줄의 별과 리모컨 +1 버튼'], ['roles', '1인1역', '알림판의 1인1역 탭']].map(([k, n, h]) => `
+        <label class="row" style="font-size:15px;min-height:44px"><input type="checkbox" id="show_${k}" ${R.settings.show?.[k] === false ? '' : 'checked'} style="width:22px;height:22px"> ${n} <span class="help">${h}</span></label>`).join('')}
     </div>
     <div class="card sec">
       <div style="font-size:15px">칭찬 별</div>
@@ -538,6 +544,9 @@ $('#main').addEventListener('click', async (e) => {
       sound: $('#sSound').value,
       'auto.morningStart': $('#sMorning').value || '08:00',
       'auto.attendance': $('#sAttend').checked,
+      'show.question': $('#show_question').checked,
+      'show.stars': $('#show_stars').checked,
+      'show.roles': $('#show_roles').checked,
       'auto.classMins': Math.min(60, Math.max(30, Number($('#sClass').value) || 45)),
       'auto.closingMins': Math.min(90, Math.max(5, Number($('#sClosing').value) || 30)),
       'auto.firstStart': $('#sFirst').value || '09:00'

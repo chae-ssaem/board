@@ -69,7 +69,8 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .jar i u{position:absolute;left:0;right:0;bottom:0;background:var(--yel);transition:height .6s}
 
 /* 시간표 */
-.tt{padding:24px 18px 12px;overflow:hidden}
+.tt{padding:24px 18px 12px;display:flex;flex-direction:column}
+#tt{flex:1;min-height:0;overflow:hidden}
 .tt .row{height:38px}
 .tt .num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .tt .sub{font-size:22px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -118,7 +119,7 @@ input,textarea,select{font-family:inherit;color:var(--ink);-webkit-user-select:t
 .brk .box{background:var(--paper);border-radius:10px;padding:10px 14px}
 
 /* 급식 */
-.meal{padding:24px 18px 14px;overflow:hidden;display:flex;flex-direction:column}
+.meal{padding:24px 18px 14px;display:flex;flex-direction:column}
 #meal{flex:1;min-height:0;overflow:hidden}
 .meal .row{height:42px}
 
@@ -302,6 +303,7 @@ function periodStarts(count) {
   }
   return times.slice(0, count).map((s) => ({ start: s, end: s + cls }));
 }
+const shown = (k) => st.settings?.show?.[k] !== false; // 오늘의 질문·칭찬 별·1인1역 켜기/끄기
 function computePhase(d = new Date()) {
   if (st.forcePhase) return st.forcePhase;
   const day = d.getDay();
@@ -334,6 +336,7 @@ function renderHeader() {
   const s = st.live.stars || { count: 0, goal: 50 };
   const goal = Math.max(1, Number(s.goal) || 50);
   const pct = Math.min(100, Math.round((Number(s.count) || 0) / goal * 100));
+  $('#stars').style.display = shown('stars') ? '' : 'none';
   const fill = 100 - pct;
   $('#stars').innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
       <defs><linearGradient id="starFill" x1="0" y1="0" x2="0" y2="1"><stop offset="${fill}%" stop-color="#fffdf8"></stop><stop offset="${fill}%" stop-color="#ffd25e"></stop></linearGradient></defs>
@@ -398,8 +401,13 @@ function renderNow() {
     <span style="margin-left:auto;font-size:15px;white-space:nowrap" class="muted">${esc(next)}</span>`;
 }
 
+function birthdaysToday() {
+  const md = `${pad(new Date().getMonth() + 1)}-${pad(new Date().getDate())}`;
+  return (st.settings?.students || []).filter((s) => s.bday === md).map((s) => s.name);
+}
 function renderPanel() {
   const b = st.live.board || {};
+  if (!shown('roles')) st.panelTab = 'board';
   const tab = st.panelTab;
   let body = '';
   if (tab === 'board') {
@@ -433,7 +441,7 @@ function renderPanel() {
     <div style="display:flex;align-items:center;gap:8px">
       <span class="h">우리 반 알림판</span>
       <button class="tab ${tab === 'board' ? 'on' : ''}" style="margin-left:auto" data-tab="board">주번 · 청소 · 알림</button>
-      <button class="tab ${tab === 'roles' ? 'on' : ''}" data-tab="roles">1인1역</button>
+      ${shown('roles') ? `<button class="tab ${tab === 'roles' ? 'on' : ''}" data-tab="roles">1인1역</button>` : ''}
     </div>${body}`;
 }
 $('#panel').addEventListener('click', (e) => {
@@ -505,19 +513,22 @@ function renderOverlay() {
       <div style="font-size:17px" class="muted">소음 신호등${o.label ? ` · ${esc(o.label)}` : ''}</div>
       <div class="lights"><i id="nG" style="background:#7ccf9f"></i><i id="nY" style="background:#f0cf6a"></i><i id="nR" style="background:#f08a9a"></i></div>
       <div class="pen" style="font-size:36px;line-height:1.1;max-width:100%" id="nMsg">마이크를 켜는 중…</div>
-      <div style="font-size:14px" class="muted" id="nSub">초록불을 10분 지키면 칭찬 별 1개!</div></div>`;
-  } else if (ph.phase === 'morning') {
+      <div style="font-size:14px" class="muted" id="nSub">${shown('stars') ? '초록불을 10분 지키면 칭찬 별 1개!' : '초록불을 지켜 주세요'}</div></div>`;
+  } else if (ph.phase === 'morning' && (shown('question') || birthdaysToday().length)) {
     const b = st.live.board || {};
     const q = b.question || QUESTIONS[Math.floor(Date.now() / 86400000) % QUESTIONS.length];
-    const md = `${pad(new Date().getMonth() + 1)}-${pad(new Date().getDate())}`;
-    const bdays = (st.settings?.students || []).filter((s) => s.bday === md).map((s) => s.name);
-    key = `morning-${q}-${bdays.join()}`;
-    html = `<div class="ov flat question">
+    const bdays = birthdaysToday();
+    key = `morning-${shown('question') ? q : ''}-${bdays.join()}`;
+    html = shown('question') ? `<div class="ov flat question">
       ${bdays.length ? `<div class="ribbon">${cakeSvg()} 오늘은 ${esc(bdays.join(' · '))}의 생일이에요! 다 같이 축하해 주세요</div>` : ''}
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span class="h">오늘의 질문</span>
         <span style="font-size:13px;border:1.5px dashed var(--ring);padding:2px 10px;border-radius:12px" class="muted">조회 전까지 생각해 보기</span></div>
       <div style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--lavL);border-radius:12px;padding:10px 24px">
-        <span class="pen" style="font-size:${q.length > 40 ? 38 : 46}px;line-height:1.15">${esc(q)}</span></div></div>`;
+        <span class="pen" style="font-size:${q.length > 40 ? 38 : 46}px;line-height:1.15">${esc(q)}</span></div></div>`
+      : `<div class="ov flat question" style="align-items:center;justify-content:center;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:18px;color:#5a1f28">${cakeSvg()} 생일 축하해요</div>
+      <span class="pen" style="font-size:56px;line-height:1.1;text-align:center">오늘은 ${esc(bdays.join(' · '))}의 생일!</span>
+      <span style="font-size:16px" class="muted">다 같이 축하해 주세요</span></div>`;
   } else if (ph.phase === 'break') {
     const L = lessonsToday();
     const nx = L[ph.next] || {};
@@ -913,7 +924,7 @@ async function startNoise(o) {
         if (m) m.textContent = lv === 'g' ? '아주 좋아요, 조용히 집중 중!' : lv === 'y' ? '조금 시끄러워요, 목소리를 줄여 볼까요?' : '너무 시끄러워요! 잠깐 멈춰요';
         if (lv !== 'g') n.greenSince = Date.now();
       }
-      if (lv === 'g' && Date.now() - n.greenSince >= 10 * 60 * 1000) {
+      if (lv === 'g' && shown('stars') && Date.now() - n.greenSince >= 10 * 60 * 1000) {
         n.greenSince = Date.now();
         st.store.update({ 'stars.count': inc(1) });
         toast('초록불 10분 성공! 칭찬 별 +1');

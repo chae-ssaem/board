@@ -285,6 +285,7 @@ export function defaultSettings() {
     places: DEFAULT_PLACES,
     auto: { morningStart: '08:00', attendance: true, classMins: 45, closingMins: 30, firstStart: '09:00' },
     sound: 'voice',
+    show: { question: true, stars: true, roles: true },
     version: 1
   };
 }
