@@ -94,22 +94,6 @@ const R = {
 };
 
 /* ---------- 연결 ---------- */
-(function boot() {
-  const h = connFromHash();
-  if (h?.cfg && h?.classId) { saveLocal(h); history.replaceState(null, '', location.pathname); }
-  if (location.search.includes('demo') || sharedDemo()) {
-    const { settings, live } = demoData();
-    R.conn = { demo: true };
-    window.__uribanDemoMode = true;
-    start(sharedDemo() || demoStore(settings, live));
-    return;
-  }
-  const c = loadLocal();
-  if (!c?.cfg || !c?.classId) { drawWelcome(); return; }
-  R.conn = c;
-  draw();
-  connectFirebase(c.cfg, c.classId).then(start).catch(() => { R.online = false; draw(); toast('연결하지 못했어요. 인터넷을 확인해 주세요.'); });
-})();
 
 function start(store) {
   R.store = store;
@@ -652,6 +636,24 @@ $('#sheet').addEventListener('click', (e) => {
     toast('칠판에 소음 신호등을 켰어요'); closeSheet();
   }
 });
+
+/* ---------- 시작 (모든 기능을 다 읽은 뒤에) ---------- */
+(function boot() {
+  const h = connFromHash();
+  if (h?.cfg && h?.classId) { saveLocal(h); history.replaceState(null, '', location.pathname); }
+  if (location.search.includes('demo') || sharedDemo()) {
+    const { settings, live } = demoData();
+    R.conn = { demo: true };
+    window.__uribanDemoMode = true;
+    start(sharedDemo() || demoStore(settings, live));
+    return;
+  }
+  const c = loadLocal();
+  if (!c?.cfg || !c?.classId) { drawWelcome(); return; }
+  R.conn = c;
+  draw();
+  connectFirebase(c.cfg, c.classId).then(start).catch(() => { R.online = false; draw(); toast('연결하지 못했어요. 인터넷을 확인해 주세요.'); });
+})();
 </script>
 </body>
 </html>
