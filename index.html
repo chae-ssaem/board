@@ -246,7 +246,8 @@ textarea.inp{resize:none;line-height:1.5}
 import {
   esc, $, $$, pad, tsMs, todayKey, ymd, hm, minutesOf, fromMinutes, weekMonday, DAYS, DAYS_EN, callText,
   randomId, loadLocal, saveLocal, remoteUrl, boardUrl, connFromHash, parseFirebaseConfig, parseStudents,
-  defaultRelay, relay, connectFirebase, demoStore, defaultSettings, defaultLive, DEL, NOW, inc, decodeLink, demoData, sharedDemo, ask
+  defaultRelay, relay, connectFirebase, demoStore, defaultSettings, defaultLive, DEL, NOW, inc, decodeLink, demoData, sharedDemo, ask,
+  validConn, connectStore, connectSheet, pingSheet, isSheetUrl, SHEET_TEMPLATE_URL
 } from './common.js';
 
 /* ================= 상태 ================= */
@@ -1087,7 +1088,9 @@ function startStore(store) {
 function netError(e) {
   console.warn(e);
   st.online = false;
-  $('#net').innerHTML = `<div class="netwarn">${/permission/i.test(e?.code || e?.message || '') ? '파이어베이스 보안 규칙 때문에 읽지 못했어요. 안내서의 규칙을 붙여 넣어 주세요.' : '인터넷 연결을 확인하는 중이에요…'}</div>`;
+  const m = String(e?.code || e?.message || '');
+  $('#net').innerHTML = `<div class="netwarn">${e?.code === 'denied' ? '시트 연결이 초기화됐어요. 톱니 → 처음 설정 다시 하기로 다시 연결해 주세요.'
+    : /permission/i.test(m) ? '파이어베이스 보안 규칙 때문에 읽지 못했어요. 안내서의 규칙을 붙여 넣어 주세요.' : '인터넷 연결을 확인하는 중이에요…'}</div>`;
 }
 
 // 1초마다 시계·교시·타이머 갱신
@@ -1159,13 +1162,14 @@ function showQr() {
 }
 
 /* ================= 처음 설정 마법사 ================= */
-const wz = { step: 0, cfg: null, cfgText: '', relay: '', school: null, comci: null, neis: null, results: null, grade: 1, cls: 1, studentsText: '', title: '우리 반 칠판', error: '' };
+const wz = { step: 0, backend: 'sheet', sheetUrl: '', cfg: null, cfgText: '', relay: '', school: null, comci: null, neis: null, results: null, grade: 1, cls: 1, studentsText: '', title: '우리 반 칠판', error: '' };
 function openWizard(fromMenu) {
   if (fromMenu && !ask('처음 설정을 다시 할까요? 지금 칠판 화면은 설정을 마치면 다시 돌아와요.')) return;
   const s = st.settings;
   if (s && st.conn && !st.conn.demo) {
     Object.assign(wz, {
-      cfg: st.conn.cfg, cfgText: JSON.stringify(st.conn.cfg, null, 2), relay: s.relay || '', grade: s.grade, cls: s.cls,
+      backend: st.conn.sheet ? 'sheet' : 'firebase', sheetUrl: st.conn.sheet || '',
+      cfg: st.conn.cfg || null, cfgText: st.conn.cfg ? JSON.stringify(st.conn.cfg, null, 2) : '', relay: s.relay || '', grade: s.grade, cls: s.cls,
       studentsText: (s.students || []).map((k) => [k.no, k.name, k.bday].filter(Boolean).join('\t')).join('\n'), title: s.title || '우리 반 칠판'
     });
     if (s.school) { wz.comci = s.school.comci ? { code: s.school.comci, name: s.school.name } : null; wz.neis = s.school.atpt ? { atpt: s.school.atpt, code: s.school.neis, name: s.school.name, kind: s.school.kind, region: s.school.region } : null; }
@@ -1174,7 +1178,7 @@ function openWizard(fromMenu) {
   drawWizard();
 }
 function stepsBar(n) {
-  const names = ['파이어베이스', '학교·반', '학생 명단', '완료'];
+  const names = ['저장소', '학교·반', '학생 명단', '완료'];
   return `<div class="steps">${names.map((x, i) => `${i ? '<s></s>' : ''}<i class="${i + 1 === n ? 'on' : i + 1 < n ? 'ok' : ''}">${i + 1 < n ? '✓' : i + 1}</i><span>${x}</span>`).join('')}</div>`;
 }
 function drawWizard() {
@@ -1200,10 +1204,21 @@ function drawWizard() {
       <div class="err">${esc(wz.error)}</div>
       <div class="nav"><button class="btn ghost" data-go="0">← 처음으로</button><button class="btn main" data-go="linkOk">연결하기</button></div>`;
   } else if (s === 1) {
-    h = `${stepsBar(1)}<div class="h" style="font-size:40px">① 파이어베이스 연결</div>
-      <div class="help" style="font-size:15px">파이어베이스 콘솔 → 프로젝트 설정(톱니) → '내 앱'의 웹 앱 → <b>SDK 설정 및 구성</b>에서 <b>구성(Config)</b>을 골라 <code>firebaseConfig</code> 부분을 통째로 복사해 붙여 넣어 주세요. 자세한 순서는 함께 드린 안내서에 있어요.</div>
-      <textarea class="inp" id="cfgIn" rows="8" placeholder='const firebaseConfig = {&#10;  apiKey: "…",&#10;  authDomain: "…",&#10;  projectId: "…",&#10;  …&#10;};'>${esc(wz.cfgText)}</textarea>
-      <div class="${wz.error ? 'err' : 'ok'}" id="cfgMsg">${esc(wz.error)}</div>
+    const sheet = wz.backend === 'sheet';
+    const tabBtn = (k, name, sub) => `<button class="opt ${wz.backend === k ? 'on' : ''}" data-backend="${k}" style="flex:1;border:1.5px solid ${wz.backend === k ? 'var(--lavM)' : 'var(--line)'};border-radius:12px;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px">
+      <span style="font-size:17px">${name}</span><span class="help">${sub}</span></button>`;
+    h = `${stepsBar(1)}<div class="h" style="font-size:40px">① 우리 반 자료를 어디에 저장할까요?</div>
+      <div style="display:flex;gap:10px">${tabBtn('sheet', '구글 시트', '내 구글 시트에 저장 · 계정만 있으면 OK')}${tabBtn('firebase', '파이어베이스', '실시간이 가장 빨라요 · 프로젝트 만들기 필요')}</div>
+      ${sheet ? `<div class="help" style="font-size:15px;line-height:1.7">
+          ① ${SHEET_TEMPLATE_URL ? `<a href="${esc(SHEET_TEMPLATE_URL)}" target="_blank" rel="noopener">채쌤보드 시트 사본 만들기</a>` : '채쌤보드 시트 템플릿의 사본 만들기 (안내서 참고)'} →
+          ② 시트 메뉴 <b>확장 프로그램 → Apps Script</b> → 오른쪽 위 <b>배포 → 새 배포</b> →
+          ③ 유형 <b>웹 앱</b>, 실행: <b>나</b>, 액세스 권한: <b>모든 사용자</b> → 배포 → 권한 허용 →
+          ④ 나온 <b>웹 앱 URL</b>을 아래에 붙여 넣기</div>
+        <input class="inp" id="sheetIn" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(wz.sheetUrl)}">
+        <div class="help">학교 계정에서 '모든 사용자'를 고를 수 없으면, 개인 구글(지메일) 계정으로 사본을 만들어 주세요.</div>`
+      : `<div class="help" style="font-size:15px">파이어베이스 콘솔 → 프로젝트 설정(톱니) → '내 앱'의 웹 앱 → <b>SDK 설정 및 구성</b>에서 <b>구성(Config)</b>을 골라 <code>firebaseConfig</code> 부분을 통째로 복사해 붙여 넣어 주세요.</div>
+        <textarea class="inp" id="cfgIn" rows="6" placeholder='const firebaseConfig = {&#10;  apiKey: "…",&#10;  projectId: "…",&#10;  …&#10;};'>${esc(wz.cfgText)}</textarea>`}
+      <div class="${wz.error ? 'err' : 'ok'}" id="cfgMsg">${esc(wz.error || wz.okMsg || '')}</div>
       <div class="nav"><button class="btn ghost" data-go="0">← 처음으로</button><button class="btn main" data-go="cfgOk">다음 →</button></div>`;
   } else if (s === 2) {
     const r = wz.results;
@@ -1234,7 +1249,7 @@ function drawWizard() {
       <div class="help" id="stuCount">${list.length}명</div>
       <div class="nav"><button class="btn ghost" data-go="2">← 이전</button><button class="btn main" data-go="save">설정 마치기 →</button></div>`;
   } else if (s === 4) {
-    h = `${stepsBar(4)}<div class="h" style="font-size:40px">④ 저장하는 중…</div><div class="help">파이어베이스에 우리 반 칠판을 만들고 있어요.</div><div class="err">${esc(wz.error)}</div>
+    h = `${stepsBar(4)}<div class="h" style="font-size:40px">④ 저장하는 중…</div><div class="help">${wz.backend === 'sheet' ? '구글 시트에' : '파이어베이스에'} 우리 반 칠판을 만들고 있어요.</div><div class="err">${esc(wz.error)}</div>
       ${wz.error ? '<div class="nav"><button class="btn ghost" data-go="3">← 이전</button><button class="btn main" data-go="save">다시 시도</button></div>' : ''}`;
   } else if (s === 5) {
     const url = remoteUrl(st.conn);
@@ -1256,6 +1271,10 @@ function drawWizard() {
   });
   if (s === 2) $('#schoolQ').addEventListener('keydown', (e) => { if (e.key === 'Enter') wzAct('search'); });
 }
+function keepStep1() {
+  if ($('#sheetIn')) wz.sheetUrl = $('#sheetIn').value.trim();
+  if ($('#cfgIn')) wz.cfgText = $('#cfgIn').value;
+}
 function keepStep2() {
   if (!$('#gradeIn')) return;
   wz.grade = Number($('#gradeIn').value); wz.cls = Number($('#clsIn').value);
@@ -1266,6 +1285,8 @@ $('#full').addEventListener('click', (e) => {
   const go = e.target.closest('[data-go]');
   const c = e.target.closest('[data-comci]');
   const n = e.target.closest('[data-neis]');
+  const bk = e.target.closest('[data-backend]');
+  if (bk) { keepStep1(); wz.backend = bk.dataset.backend; wz.error = ''; wz.okMsg = ''; drawWizard(); return; }
   if (c) { keepStep2(); wz.comci = wz.results.comci[Number(c.dataset.comci)]; autoMatchNeis(); drawWizard(); return; }
   if (n) { keepStep2(); wz.neis = wz.results.neis[Number(n.dataset.neis)]; drawWizard(); return; }
   if (go) wzAct(go.dataset.go);
@@ -1279,6 +1300,7 @@ function autoMatchNeis() {
 async function wzAct(go) {
   wz.error = '';
   if (go === '0' || go === '1' || go === '2' || go === '3' || go === 'link') {
+    if (wz.step === 1) keepStep1();
     if (wz.step === 2) keepStep2();
     if (wz.step === 3 && $('#stuIn')) wz.studentsText = $('#stuIn').value;
     wz.step = isNaN(Number(go)) ? go : Number(go);
@@ -1290,8 +1312,21 @@ async function wzAct(go) {
     const txt = $('#linkIn').value.trim();
     const m = /[#&]c=([^&\s]+)/.exec(txt);
     const conn = m ? decodeLink(m[1]) : null;
-    if (!conn?.cfg || !conn?.classId) { wz.error = '주소를 읽을 수 없어요. 리모컨 설정에서 복사한 주소를 그대로 붙여 넣어 주세요.'; drawWizard(); return; }
+    if (!validConn(conn)) { wz.error = '주소를 읽을 수 없어요. 리모컨 설정에서 복사한 주소를 그대로 붙여 넣어 주세요.'; drawWizard(); return; }
     saveLocal(conn); location.hash = ''; location.reload(); return;
+  }
+  if (go === 'cfgOk' && wz.backend === 'sheet') {
+    keepStep1();
+    if (!isSheetUrl(wz.sheetUrl)) { wz.error = '웹 앱 URL이 아니에요. 배포 화면의 \'웹 앱 URL\'(…/exec로 끝나는 주소)을 그대로 붙여 넣어 주세요.'; drawWizard(); return; }
+    $('#cfgMsg').className = 'ok'; $('#cfgMsg').textContent = '시트에 연결해 보는 중…';
+    try {
+      const p = await withTimeout(pingSheet(wz.sheetUrl), 20000);
+      if (p.connected && !(st.conn?.sheet === wz.sheetUrl)) { wz.okMsg = '이 시트는 이미 다른 칠판과 연결돼 있어요. 시트 메뉴 \'채쌤보드 → 칠판 연결 초기화\' 뒤에 다시 해 주세요.'; wz.error = wz.okMsg; drawWizard(); return; }
+    } catch (err) {
+      wz.error = /timeout/i.test(String(err?.message)) ? '시트가 응답하지 않아요. 잠시 뒤 다시 눌러 주세요.' : '시트에 연결하지 못했어요. 배포할 때 액세스 권한을 \'모든 사용자\'로 골랐는지 확인해 주세요.';
+      drawWizard(); return;
+    }
+    wz.step = 2; drawWizard(); return;
   }
   if (go === 'cfgOk') {
     wz.cfgText = $('#cfgIn').value;
@@ -1321,8 +1356,13 @@ async function wzAct(go) {
     if ($('#stuIn')) wz.studentsText = $('#stuIn').value;
     wz.step = 4; drawWizard();
     try {
-      const classId = st.conn && !st.conn.demo && st.conn.cfg?.projectId === wz.cfg.projectId ? st.conn.classId : randomId(20);
-      const store = await connectFirebase(wz.cfg, classId);
+      let conn;
+      if (wz.backend === 'sheet') {
+        conn = { sheet: wz.sheetUrl, key: st.conn?.sheet === wz.sheetUrl ? st.conn.key : randomId(24) };
+      } else {
+        conn = { cfg: wz.cfg, classId: st.conn && !st.conn.demo && st.conn.cfg?.projectId === wz.cfg.projectId ? st.conn.classId : randomId(20) };
+      }
+      const store = await connectStore(conn);
       const settings = {
         ...(st.settings && !st.conn?.demo ? {} : defaultSettings()),
         title: wz.title,
@@ -1334,18 +1374,19 @@ async function wzAct(go) {
         students: parseStudents(wz.studentsText),
         auto: { ...(st.settings?.auto || defaultSettings().auto), classMins: wz.neis?.kind === '고등학교' ? 50 : wz.neis?.kind === '초등학교' ? 40 : 45 }
       };
-      await withTimeout(store.init(settings, defaultLive()), 15000);
-      st.conn = { cfg: wz.cfg, classId };
+      await withTimeout(store.init(settings, defaultLive()), 25000);
+      st.conn = conn;
       saveLocal(st.conn);
       st.store?.close?.();
       startStore(store);
       wz.step = 5; drawWizard();
     } catch (err) {
       const msg = String(err?.code || err?.message || err);
-      wz.error = /permission/i.test(msg)
+      wz.error = err?.code === 'taken' ? err.message
+        : /permission/i.test(msg)
         ? '파이어베이스가 저장을 막았어요. Firestore 데이터베이스를 만들고, 안내서의 보안 규칙을 붙여 넣은 뒤 다시 시도해 주세요.'
         : /timeout/i.test(msg)
-          ? '응답이 없어요. Firestore 데이터베이스를 만들었는지, 인터넷이 연결됐는지 확인해 주세요.'
+          ? (wz.backend === 'sheet' ? '시트가 응답하지 않아요. 잠시 뒤 다시 시도해 주세요.' : '응답이 없어요. Firestore 데이터베이스를 만들었는지, 인터넷이 연결됐는지 확인해 주세요.')
           : `저장하지 못했어요: ${msg}`;
       drawWizard();
     }
@@ -1433,12 +1474,12 @@ try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !sha
 /* ================= 시작 ================= */
 (function boot() {
   const fromHash = connFromHash();
-  if (fromHash?.cfg && fromHash?.classId) { saveLocal(fromHash); history.replaceState(null, '', location.pathname); }
+  if (validConn(fromHash)) { saveLocal(fromHash); history.replaceState(null, '', location.pathname); }
   if (location.search.includes('demo') || sharedDemo()) { startDemo(); return; }
   const conn = loadLocal();
-  if (conn?.cfg && conn?.classId) {
+  if (validConn(conn)) {
     st.conn = conn;
-    connectFirebase(conn.cfg, conn.classId).then((store) => { startStore(store); showSplash(); })
+    connectStore(conn).then((store) => { startStore(store); showSplash(); })
       .catch((e) => { netError(e); toast('파이어베이스에 연결하지 못했어요. 인터넷을 확인해 주세요.'); });
   } else {
     openWizard();

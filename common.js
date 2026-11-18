@@ -225,6 +225,93 @@ export async function connectFirebase(cfg, classId) {
   };
 }
 
+/* ---------- 구글 시트 저장소 (선생님 각자의 Apps Script) ---------- */
+// 시트 템플릿 '사본 만들기' 주소 — 채쌤이 템플릿을 만든 뒤 여기에 넣어 두면 처음 설정 화면에 버튼으로 떠요
+export const SHEET_TEMPLATE_URL = '';
+export const isSheetUrl = (u) => /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[\w-]+\/exec\/?$/.test(String(u || '').trim());
+
+async function sheetCall(url, body) {
+  const r = await fetch(url, { method: 'POST', body: JSON.stringify(body), redirect: 'follow' });
+  let j;
+  try { j = await r.json(); } catch { throw new Error('시트 응답을 읽지 못했어요'); }
+  if (!j.ok) { const e = new Error(j.error || '시트 오류'); e.code = j.code; throw e; }
+  return j;
+}
+export async function pingSheet(url) {
+  const r = await fetch(`${url.trim()}?op=ping`, { redirect: 'follow' });
+  const j = await r.json();
+  if (j.app !== 'chaessaem-board') throw new Error('채쌤보드 스크립트가 아니에요');
+  return j;
+}
+
+export async function connectSheet(url, key) {
+  url = url.trim();
+  let S = null, L = {}, v = null, timer = null, busy = false, failing = false, dead = false;
+  const subs = { s: [], l: [], c: [], se: [], le: [] };
+  const emit = () => { subs.s.forEach((cb) => cb(S)); subs.l.forEach((cb) => cb(L)); };
+  const take = (j) => {
+    if (j.settings !== undefined) S = j.settings;
+    if (j.live !== undefined) L = j.live || {};
+    if (j.v !== undefined) v = j.v;
+  };
+  // 2초마다 '바뀐 거 있어요?' — 화면이 숨겨졌거나 밤에는 천천히
+  const interval = () => {
+    const h = new Date().getHours();
+    if (document.hidden) return 15000;
+    return h < 7 || h >= 19 ? 15000 : 2000;
+  };
+  const poll = async () => {
+    if (dead) return;
+    if (!busy) {
+      busy = true;
+      try {
+        const j = await sheetCall(url, { op: 'get', key, since: v });
+        if (!j.same) { take(j); emit(); }
+        else if (failing) emit();
+        failing = false;
+      } catch (e) {
+        if (!failing) { subs.se.forEach((cb) => cb(e)); subs.le.forEach((cb) => cb(e)); }
+        failing = true;
+      } finally { busy = false; }
+    }
+    timer = setTimeout(poll, interval());
+  };
+  const write = async (op, patch, local) => {
+    applyPatch(local, patch); // 화면에는 바로 반영하고
+    emit();
+    const j = await sheetCall(url, { op, key, patch }); // 시트에 저장한 결과로 맞춰요
+    take(j); emit();
+  };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !dead) { clearTimeout(timer); poll(); } });
+  return {
+    demo: false, sheet: true,
+    onSettings(cb, onErr) { subs.s.push(cb); if (onErr) subs.se.push(onErr); if (!timer) { timer = -1; poll(); } else if (v !== null) cb(S); },
+    onLive(cb, onErr) { subs.l.push(cb); if (onErr) subs.le.push(onErr); if (!timer) { timer = -1; poll(); } else if (v !== null) cb(L); },
+    onChecks(cb) {
+      subs.c.push(cb);
+      sheetCall(url, { op: 'checks', key }).then((j) => cb(j.checks || [])).catch(() => cb([]));
+    },
+    async init(settings, live) {
+      const j = await sheetCall(url, { op: 'init', key, settings, live });
+      take(j); emit();
+    },
+    saveSettings: (patch) => write('saveSettings', patch, S || (S = {})),
+    update: (patch) => write('update', patch, L),
+    async archiveCheck(data) {
+      await sheetCall(url, { op: 'archiveCheck', key, data });
+      const j = await sheetCall(url, { op: 'checks', key }).catch(() => ({ checks: [] }));
+      subs.c.forEach((cb) => cb(j.checks || []));
+    },
+    close() { dead = true; clearTimeout(timer); }
+  };
+}
+
+/* ---------- 연결 정보 (파이어베이스 또는 구글 시트) ---------- */
+export const validConn = (c) => !!(c && ((c.cfg && c.classId) || (c.sheet && c.key)));
+export function connectStore(c) {
+  return c.sheet ? connectSheet(c.sheet, c.key) : connectFirebase(c.cfg, c.classId);
+}
+
 /* ---------- 체험 모드(파이어베이스 없이 이 기기 안에서만) ---------- */
 function fakeTs() { const ms = Date.now(); return { toMillis: () => ms }; }
 function resolveVal(v, prev) {

@@ -90,7 +90,7 @@ details summary{cursor:pointer;font-size:14px;color:var(--lavD);padding:6px 0}
 <script type="module">
 import {
   esc, $, $$, pad, tsMs, todayKey, hm, callText, randomId, loadLocal, saveLocal, connFromHash, decodeLink, encodeLink,
-  remoteUrl, boardUrl, callSummary, parseStudents, studentsToText, connectFirebase, demoStore, demoData, DEL, NOW, inc, DEFAULT_PLACES, DEFAULT_CLOSING, sharedDemo, ask
+  remoteUrl, boardUrl, callSummary, parseStudents, studentsToText, connectFirebase, demoStore, demoData, DEL, NOW, inc, DEFAULT_PLACES, DEFAULT_CLOSING, sharedDemo, ask, validConn, connectStore
 } from './common.js';
 
 const R = {
@@ -123,7 +123,7 @@ function drawWelcome(err) {
   $('#linkOk').onclick = () => {
     const m = /[#&]c=([^&\s]+)/.exec($('#linkIn').value);
     const c = m ? decodeLink(m[1]) : null;
-    if (!c?.cfg || !c?.classId) return drawWelcome('주소를 읽을 수 없어요. 칠판에서 복사한 주소를 그대로 붙여 넣어 주세요.');
+    if (!validConn(c)) return drawWelcome('주소를 읽을 수 없어요. 칠판에서 복사한 주소를 그대로 붙여 넣어 주세요.');
     saveLocal(c); location.reload();
   };
 }
@@ -659,11 +659,11 @@ $('#sheet').addEventListener('click', (e) => {
 /* ---------- 시작 (모든 기능을 다 읽은 뒤에) ---------- */
 (function boot() {
   const h = connFromHash();
-  if (h?.cfg && h?.classId) saveLocal(h);
+  if (validConn(h)) saveLocal(h);
   // 연결 정보를 주소(#c=…)에 남겨 둬요. 아이폰에서 '홈 화면에 추가'로 만든 앱은 사파리와 저장 공간이 따로라서,
   // 주소에 있어야 홈 화면 앱으로 열어도 바로 연결돼요.
   const saved = loadLocal();
-  if (!h && saved?.cfg && saved?.classId && !location.search.includes('demo')) history.replaceState(null, '', `${location.pathname}#c=${encodeLink(saved)}`);
+  if (!h && validConn(saved) && !location.search.includes('demo')) history.replaceState(null, '', `${location.pathname}#c=${encodeLink(saved)}`);
   try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !sharedDemo()) navigator.serviceWorker.register('./sw.js').catch(() => {}); } catch { /* 미리보기 등 */ }
   if (location.search.includes('demo') || sharedDemo()) {
     const { settings, live } = demoData();
@@ -673,10 +673,10 @@ $('#sheet').addEventListener('click', (e) => {
     return;
   }
   const c = loadLocal();
-  if (!c?.cfg || !c?.classId) { drawWelcome(); return; }
+  if (!validConn(c)) { drawWelcome(); return; }
   R.conn = c;
   draw();
-  connectFirebase(c.cfg, c.classId).then(start).catch(() => { R.online = false; draw(); toast('연결하지 못했어요. 인터넷을 확인해 주세요.'); });
+  connectStore(c).then(start).catch(() => { R.online = false; draw(); toast('연결하지 못했어요. 인터넷을 확인해 주세요.'); });
 })();
 </script>
 </body>
