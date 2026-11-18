@@ -1233,9 +1233,6 @@ function drawWizard() {
         <select class="inp" id="clsIn">${Array.from({ length: 20 }, (_, i) => i + 1).map((c) => `<option ${c === wz.cls ? 'selected' : ''}>${c}</option>`).join('')}</select>반
         <input class="inp" id="titleIn" style="margin-left:auto;width:260px" value="${esc(wz.title)}" aria-label="칠판 제목" placeholder="칠판 제목">
       </div>
-      <details><summary class="help" style="cursor:pointer">고급: 중계 주소 바꾸기</summary>
-        <input class="inp" id="relayIn" style="width:100%;margin-top:6px" placeholder="${esc(defaultRelay() || 'https://…/api')}" value="${esc(wz.relay)}">
-        <div class="help">비워 두면 이 칠판이 올라가 있는 곳의 중계(${esc(defaultRelay() || '없음')})를 써요.</div></details>
       <div class="err">${esc(wz.error)}</div>
       <div class="nav"><button class="btn ghost" data-go="1">← 이전</button><button class="btn main" data-go="schoolOk">다음 →</button></div>`;
   } else if (s === 3) {
@@ -1279,7 +1276,7 @@ function keepStep2() {
   if (!$('#gradeIn')) return;
   wz.grade = Number($('#gradeIn').value); wz.cls = Number($('#clsIn').value);
   wz.title = $('#titleIn').value.trim() || '우리 반 칠판';
-  wz.relay = $('#relayIn').value.trim(); wz.q = $('#schoolQ').value.trim();
+  wz.q = $('#schoolQ').value.trim();
 }
 $('#full').addEventListener('click', (e) => {
   const go = e.target.closest('[data-go]');
@@ -1344,7 +1341,7 @@ async function wzAct(go) {
       wz.neis = null;
       autoMatchNeis();
       if (!wz.neis && wz.results.neis.length === 1) wz.neis = wz.results.neis[0];
-    } catch (err) { wz.error = `검색하지 못했어요: ${err.message}. 중계 주소를 확인해 주세요.`; }
+    } catch (err) { wz.error = `검색하지 못했어요: ${err.message}. 인터넷 연결을 확인하고 다시 검색해 주세요.`; }
     drawWizard(); return;
   }
   if (go === 'schoolOk') {
