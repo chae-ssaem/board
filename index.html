@@ -1120,7 +1120,7 @@ function toast(msg) {
 $('#gear').addEventListener('click', () => {
   if ($('#menu').innerHTML) { $('#menu').innerHTML = ''; return; }
   $('#menu').innerHTML = `<div class="menu">
-    ${st.conn && !st.conn.demo ? '<button data-m="qr">리모컨 연결 (QR)</button>' : ''}
+    ${st.conn && !st.conn.demo ? '<button data-m="qr">리모컨 연결 (QR)</button><button data-m="shortcut">바탕화면 바로가기 받기</button>' : ''}
     <button data-m="fs">전체 화면</button>
     ${st.conn?.demo ? '<button data-m="demo">체험 조작판 열기/닫기</button>' : ''}
     <button data-m="reload">새로 고침</button>
@@ -1132,11 +1132,55 @@ $('#menu').addEventListener('click', (e) => {
   if (!m) return;
   $('#menu').innerHTML = '';
   if (m === 'qr') showQr();
+  if (m === 'shortcut') showShortcut();
   if (m === 'fs') document.documentElement.requestFullscreen?.();
   if (m === 'reload') location.reload();
   if (m === 'demo') toggleDemoPanel();
   if (m === 'wizard') openWizard(true);
 });
+
+/* ================= 바탕화면 바로가기 ================= */
+// 연결 정보가 담긴 .url 파일 — 어느 브라우저로 열려도 우리 반 칠판이 바로 떠요.
+const TEMP_HOST = /-[a-z0-9]{8,10}-[a-z0-9-]+\.vercel\.app$|-git-[a-z0-9-]+\.vercel\.app$/i;
+function downloadShortcut() {
+  const url = boardUrl(st.conn);
+  const base = url.replace(/index\.html#.*$/, '');
+  const text = ['[InternetShortcut]', `URL=${url}`, `IconFile=${base}icons/board.ico`, 'IconIndex=0', ''].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
+  a.download = '채쌤보드.url';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('다운로드 폴더에 채쌤보드 바로가기를 받았어요');
+}
+function showShortcut() {
+  const url = boardUrl(st.conn);
+  const temp = TEMP_HOST.test(location.hostname);
+  $('#full').innerHTML = `<div class="full"><div class="sheet" style="width:820px">
+    <div class="h" style="font-size:42px">바탕화면 바로가기 받기</div>
+    <div style="font-size:17px;line-height:1.7">이 바로가기에는 <b>우리 반 칠판 연결 정보</b>가 들어 있어요.<br>칠판이 꺼졌다 켜져도, 어느 브라우저로 열려도 누르기만 하면 우리 반 칠판이 바로 떠요.</div>
+    ${temp ? '<div class="err">지금 주소는 Vercel이 올릴 때마다 새로 만드는 임시 주소예요. Vercel 대시보드의 기본 주소(○○.vercel.app)로 들어가서 받으면 더 오래 써요.</div>' : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="list" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        <b style="font-size:18px">윈도우 칠판</b>
+        <div class="help" style="font-size:15px;line-height:1.7">① 아래 <b>바로가기 파일 받기</b>를 눌러요.<br>② 다운로드 폴더의 <b>채쌤보드</b> 파일을 바탕화면으로 옮겨요.<br>③ 브라우저가 "유지할까요?" 물으면 <b>유지</b>를 눌러요.</div>
+        <button class="btn main" id="scGet" style="align-self:flex-start">바로가기 파일 받기</button>
+      </div>
+      <div class="list" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        <b style="font-size:18px">안드로이드 칠판</b>
+        <div class="help" style="font-size:15px;line-height:1.7">① 아래 <b>주소 복사</b>를 눌러요.<br>② 크롬 주소창에 붙여 넣고 열어요.<br>③ ⋮ 메뉴 → <b>홈 화면에 추가</b>를 눌러요.</div>
+        <button class="btn" id="scCopy" style="align-self:flex-start">주소 복사</button>
+      </div>
+    </div>
+    <div class="help">이 바로가기는 학생이 가져가지 않도록 선생님만 관리해 주세요.</div>
+    <input class="inp" readonly value="${esc(url)}" style="width:100%;font-size:12px" onclick="this.select()">
+    <div class="nav" style="justify-content:flex-end"><button class="btn main" id="scClose">닫기</button></div>
+  </div></div>`;
+  $('#scGet').onclick = downloadShortcut;
+  $('#scCopy').onclick = () => { navigator.clipboard?.writeText(url); toast('주소를 복사했어요'); };
+  $('#scClose').onclick = () => { $('#full').innerHTML = ''; };
+}
 
 /* ================= QR ================= */
 function qrSvg(text) {
@@ -1256,7 +1300,7 @@ function drawWizard() {
         <div class="h" style="font-size:42px">다 됐어요!</div>
         <div style="font-size:17px;line-height:1.6">이제 <b>선생님 폰 카메라로 QR</b>을 찍으면 리모컨이 열려요.<br>폰에서는 아무것도 입력하지 않아도 돼요.</div>
         <div class="help">QR은 나중에 왼쪽 아래 톱니 → '리모컨 연결'에서 다시 볼 수 있어요.<br>이 QR에는 칠판 연결 정보가 들어 있으니 학생이 찍지 않게 해 주세요.</div>
-        <button class="btn main" data-go="finish" style="align-self:flex-start;font-size:20px">칠판 시작하기</button>
+        <div style="display:flex;gap:10px"><button class="btn main" data-go="finish" style="font-size:20px">칠판 시작하기</button><button class="btn" data-go="shortcut" style="font-size:17px">바탕화면 바로가기 받기</button></div>
       </div></div>`;
   }
   $('#full').innerHTML = `<div class="full"><div class="sheet">${h}</div></div>`;
@@ -1389,6 +1433,7 @@ async function wzAct(go) {
     }
     return;
   }
+  if (go === 'shortcut') { downloadShortcut(); return; }
   if (go === 'finish') { $('#full').innerHTML = ''; showSplash(); }
 }
 function withTimeout(p, ms) {
