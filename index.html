@@ -497,9 +497,9 @@ function renderOverlay() {
         ${bellSvg('#8a2050', 20)} 선생님 호출 · ${esc(hm(new Date(tsMs(c.at) || Date.now())))}${c.from ? ` · ${esc(c.from)}` : ''}
         ${soundLabel ? `<span style="margin-left:auto;font-size:13px;background:rgba(255,255,255,.6);padding:3px 10px;border-radius:12px">${soundLabel}</span>` : ''}
       </div>
-      <div class="pen who" style="font-size:${t.who.length > 16 ? 46 : 64}px">${esc(t.who)}</div>
-      <div class="pen where" style="font-size:${t.where.length <= 14 ? 50 : t.where.length <= 24 ? 42 : t.where.length <= 40 ? 34 : 28}px;line-height:1.1">${esc(t.where)}</div>
-      <button class="btn-go" id="ackBtn">지금 갈게요!</button>
+      ${t.who ? `<div class="pen who" style="font-size:${t.who.length > 16 ? 46 : 64}px">${esc(t.who)}</div>` : ''}
+      <div class="pen where" style="font-size:${t.who ? (t.where.length <= 14 ? 50 : t.where.length <= 24 ? 42 : t.where.length <= 40 ? 34 : 28) : (t.where.length <= 14 ? 64 : t.where.length <= 24 ? 54 : t.where.length <= 40 ? 44 : 36)}px;line-height:1.1;margin-top:${t.who ? 0 : 10}px">${esc(t.where)}</div>
+      <button class="btn-go" id="ackBtn">확인했어요</button>
     </div>`;
   } else if (o && o.type === 'timer') {
     key = `timer-${o.id}`;

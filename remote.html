@@ -226,7 +226,7 @@ function drawHome() {
       <button class="btn wide" style="margin-top:10px;background:var(--pink);color:#5a1f28" data-act="closeCheck">마감하고 ${pending.length ? '미제출 명단' : '기록'} 저장</button></div>` : ''}
     ${c ? `<div class="card"><div class="lbl" style="margin-bottom:4px">최근 호출</div>
       <div class="row" style="font-size:15px"><span>${esc(callSummary(c))}</span><span class="lbl">${tsMs(c.at) ? hm(new Date(tsMs(c.at))) : ''}</span>
-        <span class="badge" style="margin-left:auto;background:${c.ack ? 'var(--mint)' : 'var(--yelL)'};color:${c.ack ? 'var(--mintD)' : 'var(--yelD)'}">${c.ack ? '지금 갈게요 ✓' : '확인 대기'}</span></div>
+        <span class="badge" style="margin-left:auto;background:${c.ack ? 'var(--mint)' : 'var(--yelL)'};color:${c.ack ? 'var(--mintD)' : 'var(--yelD)'}">${c.ack ? '확인했어요 ✓' : '확인 대기'}</span></div>
       ${c.ack ? '' : '<button class="btn small ghost" style="margin-top:8px" data-act="cancelCall">호출 내리기</button>'}</div>` : ''}
 `;
 }
@@ -255,7 +255,7 @@ function drawCall() {
   const c = activeCall();
   $('#main').innerHTML = `${topBar('호출하기')}
     ${c && !c.ack ? `<div class="card row" style="border:2px solid var(--rose)"><span style="font-size:14px">칠판에 떠 있어요 · ${esc(callSummary(c))}</span><button class="btn small ghost" style="margin-left:auto" data-c="cancel">내리기</button></div>` : ''}
-    ${c && c.ack ? `<div class="card row" style="border:2px solid var(--mint)"><span style="font-size:14px">${esc((c.names || []).join(' · ') || '반 전체')}에서 '지금 갈게요'를 눌렀어요 ✓</span></div>` : ''}
+    ${c && c.ack ? `<div class="card row" style="border:2px solid var(--mint)"><span style="font-size:14px">${esc((c.names || []).join(' · ') || '반 전체')}에서 '확인했어요'를 눌렀어요 ✓</span></div>` : ''}
     <div class="card" style="padding:12px">
       <div class="row" style="margin:0 2px 8px"><span style="font-size:15px">① 누구를?</span><span class="help">${R.msgMode ? '안 고르면 반 전체에게 보내요' : '여러 명 선택 가능'}</span>
         ${R.sel.size ? '<button class="btn small ghost" style="margin-left:auto;min-height:32px;padding:4px 10px" data-c="clear">선택 지우기</button>' : ''}</div>

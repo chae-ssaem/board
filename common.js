@@ -62,7 +62,7 @@ export function ro(word) {
 // 호출 문구: 장소를 고르면 "○○로 와 주세요!", 직접 쓴 문장이 있으면 그 문장 그대로
 export function callText(names, place, message) {
   const msg = String(message || '').trim();
-  const who = names.length ? `${names.join(' · ')} 학생,` : msg ? '우리 반 친구들,' : '';
+  const who = names.length ? `${names.join(' · ')} 학생,` : '';
   return { who, where: msg || `${place}${ro(place)} 와 주세요!` };
 }
 export function callSummary(c) {
@@ -227,7 +227,7 @@ export async function connectFirebase(cfg, classId) {
 
 /* ---------- 구글 시트 저장소 (선생님 각자의 Apps Script) ---------- */
 // 시트 템플릿 '사본 만들기' 주소 — 채쌤이 템플릿을 만든 뒤 여기에 넣어 두면 처음 설정 화면에 버튼으로 떠요
-export const SHEET_TEMPLATE_URL = 'https://docs.google.com/spreadsheets/d/14lnFNEc-lems-gZY_bx9z4Oc1qxaHMWCsyxrEiYh-1c/copy';
+export const SHEET_TEMPLATE_URL = '';
 export const isSheetUrl = (u) => /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+\/|macros\/)s\/[\w-]+\/exec\/?$/.test(String(u || '').trim());
 
 async function sheetCall(url, body) {
